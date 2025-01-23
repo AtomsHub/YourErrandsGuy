@@ -1,0 +1,81 @@
+
+
+/* Extra small devices (phones, 576px and down) */
+@media (max-width: 576px) { 
+
+    
+}
+
+@media (max-width: 767.98px) {
+    
+
+}
+
+
+/* Small devices (landscape phones, between 576px and 767.98px) */
+@media (min-width: 576.2px) and (max-width: 767.98px) {  
+    
+
+      
+}
+
+@media (min-width: 768px) {
+    section {
+        padding-top: 80px !important;
+        padding-bottom: 80px !important;
+    }
+
+    .download-area {
+        position: relative;
+        min-height: 50px;
+        padding-left: 80px;
+    }
+
+
+    .overlay-phone {
+        position: absolute;
+        right: 80px;
+        bottom: 40px;
+        width: 30%;
+    }
+
+    .overlay-phone img {
+        width: 100%;
+        object-fit: cover;
+    }
+    
+}
+
+@media (max-width: 991.98px) {
+
+   
+    
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) { 
+ 
+ 
+}
+
+
+@media (min-width: 992px) { 
+   .banner {
+        width: 100%;
+        height: auto;
+   }
+   .banner>video {
+        object-fit: cover;
+        height: auto;
+        width: 100%;
+    }
+    .download-area {
+        min-height: 350px;
+    }
+
+    .overlay-phone {
+        bottom: 10px;
+        width: 25%;
+    }
+
+}
+
