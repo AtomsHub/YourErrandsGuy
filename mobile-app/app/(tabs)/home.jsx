@@ -2,16 +2,18 @@ import { View, Text, ScrollView, Image, TextInput, TouchableOpacity, Alert } fro
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { Link, router } from 'expo-router';
+import { useFocusEffect, router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Burnt from 'burnt';
+import axios from 'axios';
 import '../../global.css'
 
 import { images } from '../../constants';
 
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const getUserDataAndPopular = async () => {
   try {
-    // Fetch both user and popular data simultaneously
+    
     const [userString, storedPopular] = await Promise.all([
       AsyncStorage.getItem('user'),
       AsyncStorage.getItem('popular'),
@@ -33,8 +35,33 @@ const Home = () => {
   const [fullName, setFullName] = useState('');
   const [popular, setPopular] = useState([]);
 
-  console.log(popular)
-  console.log(popular.image)
+  const getHome = async () => {
+    try {
+      
+      const token = await AsyncStorage.getItem('BearerToken');
+
+      const response = await axios.get(`${API_BASE_URL}dashboard`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log(response.data.status);
+      if (response.status === 200) { 
+        
+        await AsyncStorage.setItem('user', JSON.stringify(response.data.data.user));
+        await AsyncStorage.setItem('popular', JSON.stringify(response.data.data.popular));
+        await AsyncStorage.setItem('vendors', JSON.stringify(response.data.data.vendors));
+
+      }
+
+    } catch (error) {
+      console.error('Error fetching history:', error);
+      Burnt.toast({
+        title: 'Failed to fetch orders!',
+        preset: 'error',
+        from: 'top',
+      });
+    } 
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -45,6 +72,12 @@ const Home = () => {
 
     loadData();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getHome();
+    }, [])
+  );
 
 
   return (
@@ -77,7 +110,7 @@ const Home = () => {
                 <View className='mt-5'>
                     <View className='flex-row items-center justify-between gap-x-5'>
                         <Text className='font-Raleway-Bold text-2xl'>Common Errand</Text>
-                        <Text onPress={() => console.log('Pressed')} className='font-SpaceGrotesk-Medium text-base text-primary'>See all</Text>
+                        {/* <Text onPress={() => console.log('Pressed')} className='font-SpaceGrotesk-Medium text-base text-primary'>See all</Text> */}
                     </View>
 
 

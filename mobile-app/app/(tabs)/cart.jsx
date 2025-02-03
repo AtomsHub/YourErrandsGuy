@@ -1,10 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Paystack } from 'react-native-paystack-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import { Paystack } from 'react-native-paystack-webview';
+import { router } from "expo-router";
 import * as Burnt from 'burnt';
+import axios from 'axios';
 
 import { useGlobalCart } from '../../context/GlobalCartContext';
 import CustomButton from "../../components/CustomButton";
@@ -30,21 +31,38 @@ const Cart = () => {
 	const paystackWebViewRef = useRef(null);
 	const [loading, setLoading] = useState(false);
 
+	const [transactionId, setTransactionId] = useState(null);
 	const [fullName, setFullName] = useState('');
 	const [email, setEmail] = useState('');
 	const [phone, setPhone] = useState('');
+	
 
-	  useEffect(() => {
-		const loadUserData = async () => {
-		  const user = await getUserData();
-		  if (user) {
-			setFullName(user.fullname);
-			setEmail(user.email);
-			setPhone(user.phone);
-		  }
-		};
-		loadUserData();
-	  }, []);
+	useEffect(() => {
+	const loadUserData = async () => {
+		const user = await getUserData();
+		if (user) {
+		setFullName(user.fullname);
+		setEmail(user.email);
+		setPhone(user.phone);
+		}
+	};
+	loadUserData();
+	}, []);
+
+	const loadTransactionID = async () => {
+		try {
+		  const id = await AsyncStorage.getItem('transactionId');
+			if (id) {
+				setTransactionId(id);
+				return id; // Return the transaction ID for immediate use
+			}
+		  	return null;
+		} catch (error) {
+		  	console.error('Error loading transaction ID:', error);
+		  	return null;
+		}
+	};
+
 
 	const calculateTotalAmount = () => {
 		return globalCart.reduce((acc, item) => acc + (item.totalAmount || 0), 0);
@@ -52,39 +70,93 @@ const Cart = () => {
 
 	const totalAmount = calculateTotalAmount();
 	  
-	const handlePaymentSuccess = async () => {
-	try {
-		setLoading(true);
-		const checkoutData = {
-			cartItems: globalCart,
-			totalAmount
-		};
-		
-		const token = await AsyncStorage.getItem('BearerToken');
-		// Send order to backend
-		const response = await axios.post(
-		`${API_BASE_URL}orders/save`,
-		checkoutData,
-		{
-			headers: {
-			  Authorization: `Bearer ${token}`,
-			},
-		}
-		);
-		console.log('API Response:', response.status);
-		console.log('API DATA:', response.data);
+	const saveOrder = async () => {
 	
-		if (response.status === 200) {
-		Burnt.toast({
-			title: 'Order placed successfully!',
-			preset: 'done',
-			from: 'top',
-		});
-		// router.replace('/orders');
+		try {
+			setLoading(true);
+
+			const transactionId = await loadTransactionID();
+			if (!transactionId) {
+			  throw new Error('Transaction ID not found');
+			}
+
+			console.log("TransactionID", transactionId);
+
+			const checkoutData = {
+				cartItems: globalCart,
+				totalAmount,
+				transaction_id: transactionId
+			};
+			
+			const token = await AsyncStorage.getItem('BearerToken');
+			
+			const response = await axios.post(
+			`${API_BASE_URL}orders/save`,
+			checkoutData,
+			{
+				headers: {
+				Authorization: `Bearer ${token}`,
+				},
+			}
+			);
+			console.log('API Response:', response.status);
+		
+			if (response.status === 200) {
+			Burnt.toast({
+				title: 'Order Saved successfully!',
+				preset: 'done',
+				from: 'top',
+			});
+			paystackWebViewRef.current?.startTransaction()
+			}
+		} catch (error) {
+			console.log(error.status)
+			Burnt.toast({
+				title: 'Order saving failed. Please contact support.',
+				preset: 'error',
+				from: 'top',
+			});
+		} finally {
+			setLoading(false);
 		}
+	};
+
+	const updateOrder = async (paystackResponse) => {
+		try {
+
+			setLoading(true);
+
+			const transactionId = await loadTransactionID();
+			if (!transactionId) {
+			  throw new Error('Transaction ID not found');
+			}
+  
+			console.log(transactionId, '2', paystackResponse.data.transactionRef?.trxref, '3', paystackResponse.data.event);
+			console.log(paystackResponse.data.transactionRef?.trxref || 'cancelled',)
+			const token = await AsyncStorage.getItem('BearerToken');
+			// Send order to backend
+			const response = await axios.post(
+			`${API_BASE_URL}updateOrder`,
+			{
+				trans_id: transactionId,
+				tx_ref: paystackResponse.data.transactionRef?.trxref || 'cancelled',
+				status: paystackResponse.data.event,
+			},
+			{
+				headers: {
+				Authorization: `Bearer ${token}`,
+				},
+			}
+			);
+
+
+			console.log('API Response:', response.status);
+		
+	
 	} catch (error) {
+		console.error('Error updating order:', error);
 		Burnt.toast({
-			title: 'Order saving failed. Please contact support.',
+			title: 'Order updating failed. Please contact support.',
 			preset: 'error',
 			from: 'top',
 		  });
@@ -112,17 +184,23 @@ const Cart = () => {
 		billingMobile={phone}
 		billingEmail={email}
 		activityIndicatorColor="green"
-		onCancel={() => {
-		handlePaymentSuccess(),
-		  Burnt.toast({
-			title: 'Payment cancelled',
-			preset: 'error',
-			from: 'top',
-		  });
-		}}
-		onSuccess={() => {
-			handlePaymentSuccess();
+		onCancel={(paystackResponse) => {
+			updateOrder(paystackResponse),
+			Burnt.toast({
+				title: 'Payment cancelled',
+				preset: 'error',
+				from: 'top',
+			});
+			}}
+		onSuccess={(paystackResponse) => {
+			updateOrder(paystackResponse);
+			Burnt.toast({
+				title: 'Order Placed successfully!',
+				preset: 'done',
+				from: 'top',
+			});
 			clearGlobalCart();
+			router.push('delivery');
 		}}
 
 		ref={paystackWebViewRef}
@@ -158,10 +236,12 @@ const Cart = () => {
 
 	<View className="px-6 pb-4 mt-3 bg-white">
 	<CustomButton
-		title={`Proceed to Checkout ₦${totalAmount}`}
+		title={`Proceed to Checkout ₦${totalAmount.toFixed(2)}`}
 		containerStyles="bg-primary"
 		textStyles="text-white"
-		handlePress={() => paystackWebViewRef.current?.startTransaction()}
+		handlePress={() => {
+			saveOrder();
+		}}
 		disabled={loading || globalCart.length === 0}
 	/>
 	</View>

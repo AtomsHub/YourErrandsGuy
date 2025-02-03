@@ -23,13 +23,13 @@ const RestaurantCartCard = ({ cartItem, deleteFromCart }) => {
                   {item.name} (x{item.quantity})
                 </Text>
                 <Text className="font-SpaceGrotesk-Regular text-sm">
-                  ₦{item.price * item.quantity}
+                  ₦{item.price * item.quantity.toFixed(2)}
                 </Text>
               </View>
             ))}
             <View className="flex-row justify-between mt-[4]">
               <Text className='font-Raleway-SemiBold text-sm flex-1'>Delivery Fee</Text>
-              <Text className="font-SpaceGrotesk-Medium text-sm">₦{cartItem.deliveryFee}</Text>
+              <Text className="font-SpaceGrotesk-Medium text-sm">₦{cartItem.deliveryFee.toFixed(2)}</Text>
             </View>
           </View>
   
@@ -37,7 +37,7 @@ const RestaurantCartCard = ({ cartItem, deleteFromCart }) => {
             <View>
               <Text className="text-xs">Total</Text>
               <Text className="font-SpaceGrotesk-Bold text-xl">
-                ₦{cartItem.totalAmount}
+                ₦{cartItem.totalAmount.toFixed(2)}
               </Text>
             </View>
   

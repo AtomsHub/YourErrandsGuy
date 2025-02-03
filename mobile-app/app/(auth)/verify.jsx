@@ -6,6 +6,7 @@ import { router } from 'expo-router'
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Burnt from 'burnt'
+import { Toaster } from 'burnt/web';
 
 import Loading from '../../components/Loading';
 import CustomButton from '../../components/CustomButton'
@@ -99,13 +100,16 @@ const verify = () => {
   
         if (response.data.status) {
           // Save token and user data
-          await AsyncStorage.setItem('BearerToken', response.data.data.token)
-          const userData = response.data.data
-          
-          // Store all user data fields
-          for (const [key, value] of Object.entries(userData)) {
-            await AsyncStorage.setItem(key, String(value))
-          }
+          await AsyncStorage.setItem('BearerToken', response.data.data.token);
+
+          // Store user data
+          await AsyncStorage.setItem('user', JSON.stringify(response.data.data.user));
+  
+          // Store popular items
+          await AsyncStorage.setItem('popular', JSON.stringify(response.data.data.popular));
+  
+          // Store vendors
+          await AsyncStorage.setItem('vendors', JSON.stringify(response.data.data.vendors));
   
           await Burnt.toast({
             title: response.data.message,
@@ -247,7 +251,7 @@ const verify = () => {
 
     {loading && <Loading /> }
     <StatusBar style='dark' />
-
+    <Toaster theme='dark' />
     </SafeAreaView>
   )
 }

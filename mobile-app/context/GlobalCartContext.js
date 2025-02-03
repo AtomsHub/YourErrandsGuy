@@ -1,91 +1,111 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Alert } from "react-native"; // Correct source
+import { Alert } from "react-native";
 
-
-
-// Create the context
 const GlobalCartContext = createContext();
 
-// Custom hook to use the context
 export const useGlobalCart = () => useContext(GlobalCartContext);
 
-// Provider component
 export const GlobalCartProvider = ({ children }) => {
   const [globalCart, setGlobalCart] = useState([]);
 
-  // Load globalCart from AsyncStorage when the app starts
+
+  // Load globalCart from AsyncStorage on mount
   useEffect(() => {
     const loadCartFromStorage = async () => {
       try {
         const storedCart = await AsyncStorage.getItem("globalCart");
-        if (storedCart) {
-          setGlobalCart(JSON.parse(storedCart)); // Parse and set the stored cart
-        }
+        if (storedCart) setGlobalCart(JSON.parse(storedCart));
+        
       } catch (error) {
-        console.error("Error loading globalCart from AsyncStorage:", error);
+        console.error("Error loading cart:", error);
       }
     };
-
     loadCartFromStorage();
   }, []);
 
-  // Function to add items to the globalCart and persist it
+
+  useEffect(() => {
+    const handleTransactionId = async () => {
+      try {
+        if (globalCart.length > 0) {
+          // Get user data from AsyncStorage
+          const userData = await AsyncStorage.getItem("user");
+          const user = JSON.parse(userData);
+          console.log(user.id);
+          if (!userData) {
+            return;
+          }
+
+          const transactionId = `ER${user.id}${new Date().toISOString().replace(/[-:T.]/g, '')}`;
+          await AsyncStorage.setItem("transactionId", transactionId);
+        } else {
+          // Clear transaction ID when cart is empty
+          console.log("Clearing transaction")
+          await AsyncStorage.removeItem("transactionId");
+        } 
+      } catch (error) {
+        console.error("Error handling transaction ID:", error);
+      }
+    };
+
+    handleTransactionId();
+  }, [globalCart]); // Run whenever globalCart changes
+
+  // Add to cart
   const addToGlobalCart = async (item) => {
     const updatedCart = [...globalCart, item];
     setGlobalCart(updatedCart);
-
-    // Save the updated cart to AsyncStorage
     try {
       await AsyncStorage.setItem("globalCart", JSON.stringify(updatedCart));
     } catch (error) {
-      console.error("Error saving globalCart to AsyncStorage:", error);
+      console.error("Error saving cart:", error);
     }
   };
 
-  
+  // Remove from cart
   const removeFromGlobalCart = (indexToRemove) => {
     Alert.alert(
       "Confirm Removal",
-      "Are you sure you want to remove this item from the cart?",
+      "Are you sure you want to remove this item?",
       [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Removal canceled"), 
-          style: "cancel",
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
+          style: "destructive",
           onPress: async () => {
-            const updatedCart = globalCart.filter((_, index) => index !== indexToRemove);
+            const updatedCart = globalCart.filter(
+              (_, index) => index !== indexToRemove
+            );
             setGlobalCart(updatedCart);
-  
             try {
-              await AsyncStorage.setItem("globalCart", JSON.stringify(updatedCart));
+              await AsyncStorage.setItem(
+                "globalCart",
+                JSON.stringify(updatedCart)
+              );
             } catch (error) {
-              console.error("Error updating globalCart in AsyncStorage:", error);
+              console.error("Error updating cart:", error);
             }
           },
-          style: "destructive", // Style the button as a "delete" action
         },
       ]
     );
   };
 
-const clearGlobalCart = async () => {
+  // Clear cart
+  const clearGlobalCart = async () => {
     setGlobalCart([]);
-
     try {
       await AsyncStorage.removeItem("globalCart");
     } catch (error) {
-      console.error("Error clearing globalCart in AsyncStorage:", error);
+      console.error("Error clearing cart:", error);
     }
   };
 
-  
-
   return (
-    <GlobalCartContext.Provider value={{ globalCart, addToGlobalCart, removeFromGlobalCart, clearGlobalCart }}>
+    <GlobalCartContext.Provider
+      value={{ globalCart, addToGlobalCart, removeFromGlobalCart, clearGlobalCart }}
+    >
       {children}
     </GlobalCartContext.Provider>
   );

@@ -19,8 +19,8 @@ const FoodList = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isCartVisible, setIsCartVisible] = useState(false);
   const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => ['15%', '20%'], []);
-  const cartSnapPoints = useMemo(() => ['50%', '70%'], []);
+  const snapPoints = useMemo(() => ['30%'], []);
+  const cartSnapPoints = useMemo(() => ['70%'], []);
 
   const handleOpenBottomSheet = useCallback((item) => {
     setSelectedItem(item); // Set the selected item
@@ -87,7 +87,7 @@ const FoodList = () => {
           const user = JSON.parse(userString);
           setFormData({
             receiverName: user.fullname || '',
-            receiverPhone: `0${user.phone}` || '',
+            receiverPhone: user.phone.startsWith('0') ? user.phone : `0${user.phone}`,
             receiverEmail: user.email || '',
           });
         }
@@ -97,8 +97,8 @@ const FoodList = () => {
     }
   };
 
+  // Validation functions inside useEffect
   useEffect(() => {
-    // Validation functions inside useEffect
     const validatePhoneNumber = (number) => {
       if (number.length > 1) {
         const isValid = /^\d{11}$/.test(number) && number.startsWith('0');
@@ -127,7 +127,6 @@ const FoodList = () => {
   }, [formData, cartItems]);  
 
 
-
   const handleAddToCart = (item) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((cartItem) => cartItem.name === item.name);
@@ -138,7 +137,7 @@ const FoodList = () => {
             : cartItem
         );
       }
-      return [...prevItems, { ...item, quantity: 1 }];
+      return [...prevItems, { ...item, quantity: counter }];
     });
   };
 
@@ -313,9 +312,14 @@ const FoodList = () => {
       {isCartVisible && (
         <BottomSheet
           ref={bottomSheetRef}
-          index={0} // Start closed
+          index={0} 
           snapPoints={cartSnapPoints}
-          enablePanDownToClose={true} // Allow closing by swiping down
+          enablePanDownToClose={true} 
+          onChange={(index) => {
+            if (index === -1) {
+              setIsCartVisible(false);
+            }
+          }}
           backgroundComponent={({ style }) => (
             <View className="bg-white rounded-t-3xl" style={style} />
           )}
@@ -368,6 +372,7 @@ const FoodList = () => {
                     <FormField
                         title="Name"
                         placeholder="Adebola Ibrahim Nneka"
+                        otherStyles="w-full"
                         handleChangeText={(value) => handleChangeText('receiverName', value)}
                         value={formData.receiverName}
                     />
@@ -398,15 +403,15 @@ const FoodList = () => {
                 <View className="bg-secondary-400 rounded-lg mt-4 p-4">
                     <View className='flex-row justify-between items-center'>
                       <Text className="font-SpaceGrotesk-Medium text-md flex-1">Item Amount</Text>
-                      <Text className="font-SpaceGrotesk-Medium text-md">₦{itemAmount}</Text>
+                      <Text className="font-SpaceGrotesk-Medium text-md">₦{itemAmount.toFixed(2)}</Text>
                     </View>
                     <View className='flex-row justify-between items-center'>
                     <Text className="font-SpaceGrotesk-Medium text-md flex-1">Delivery Fee</Text>
-                    <Text className="font-SpaceGrotesk-Medium text-md">₦{deliveryFee}</Text>
+                    <Text className="font-SpaceGrotesk-Medium text-md">₦{deliveryFee.toFixed(2)}</Text>
                   </View>
                   <View className='flex-row justify-between items-center mt-1'>
                     <Text className="font-SpaceGrotesk-Bold text-lg flex-1">Total Amount</Text>
-                    <Text className="font-SpaceGrotesk-Bold text-lg">₦{totalAmount}</Text>
+                    <Text className="font-SpaceGrotesk-Bold text-lg">₦{totalAmount.toFixed(2)}</Text>
                   </View>
                 </View>
 

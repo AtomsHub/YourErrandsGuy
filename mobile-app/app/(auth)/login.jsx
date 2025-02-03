@@ -61,9 +61,11 @@ const Login = () => {
   }, [form])
 
   
+  
 
   const handleSubmit = async () => {
     if (!isFormValid || loading) return;
+
 
     await AsyncStorage.setItem('emailAddress', form.email);
 
@@ -194,7 +196,7 @@ const Login = () => {
       </View>
 
       {loading && <Loading /> }
-      <Toaster />
+      <Toaster theme='dark' />
       <StatusBar style='dark' />
 
     </SafeAreaView>

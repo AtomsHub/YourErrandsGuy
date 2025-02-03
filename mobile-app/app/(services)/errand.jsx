@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 import FormField from '../../components/FormField';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,6 +30,7 @@ const Errand = () => {
 
   const [errors, setErrors] = useState({});
   const [items, setItems] = useState([]);
+  const [useUserInfo, setUseUserInfo] = useState(false);
   const [isFormComplete, setIsFormComplete] = useState(false); 
   const deliveryFee = 500;
 
@@ -75,10 +78,40 @@ const Errand = () => {
     }
   };
 
+  const handleCheckboxPress = async () => {
+    const newUseUserInfo = !useUserInfo;
+    setUseUserInfo(newUseUserInfo);
+
+    if (newUseUserInfo) {
+      try {
+        const userString = await AsyncStorage.getItem('user');
+        if (userString) {
+          const user = JSON.parse(userString);
+          setFormData(prevFormData => ({
+            ...prevFormData,
+            receiverName: user.fullname || '',
+            receiverPhone: user.phone.startsWith('0') ? user.phone : `0${user.phone}`,
+            receiverEmail: user.email || '',
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    } else {
+      // Optional: Clear receiver fields when unchecking
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        receiverName: '',
+        receiverPhone: '',
+        receiverEmail: '',
+      }));
+    }
+  };
+
   useEffect(() => {
     const hasErrors = Object.values(errors).some((error) => error);
     const isFormFilled = Object.values(formData).every((value) => value.trim() !== '');
-    setIsFormComplete(isFormFilled && !hasErrors && items.length > 0);
+    setIsFormComplete(isFormFilled && !hasErrors && items.length > 0 ) ;
   }, [formData, errors, items]);
 
   const handleAddItem = () => {
@@ -160,6 +193,7 @@ const Errand = () => {
           <FormField
             title="Description"
             placeholder="Narrate your errand"
+            otherStyles="w-full"
             handleChangeText={(value) => handleChangeText('description', value, true)}
             value={itemData.description}
           />
@@ -222,31 +256,47 @@ const Errand = () => {
         )}
 
         <Text className="font-Raleway-Bold text-2xl mt-10 mb-4">Receiver Information</Text>
-        <View className="">
-          <FormField
-            title="Name"
-            placeholder="Adebola Ibrahim Nneka"
-            handleChangeText={(value) => handleChangeText('receiverName', value)}
-            value={formData.receiverName}
-          />
-          <FormField
-            title="Phone Number"
-            placeholder="08000000000"
-            otherStyles="mt-5"
-            keyboardType="phone-pad"
-            handleChangeText={(value) => handleChangeText('receiverPhone', value)}
-            value={formData.receiverPhone}
-            error={errors.receiverPhone}
-          />
-          <FormField
-            title="Email"
-            placeholder="email@example.com"
-            otherStyles="mt-4"
-            keyboardType="email-address"
-            handleChangeText={(value) => handleChangeText('receiverEmail', value)}
-            value={formData.receiverEmail}
-            error={errors.receiverEmail}
-          />
+        <View className="flex-row items-center mb-4">
+          <TouchableOpacity onPress={handleCheckboxPress}>
+            <AntDesign
+              name={useUserInfo ? "checkcircle" : "checkcircleo"}
+              size={24}
+              color={useUserInfo ? "green" : "gray"}
+            />
+          </TouchableOpacity>
+          <Text className="ml-2 font-SpaceGrotesk-Medium">Use my information</Text>
+        </View>
+              
+        <View className="flex-wrap flex-row w-full justify-between">
+            <FormField
+                title="Name"
+                placeholder="Adebola Ibrahim Nneka"
+                otherStyles="w-full"
+                handleChangeText={(value) => handleChangeText('receiverName', value)}
+                value={formData.receiverName}
+            />
+            <FormField
+                title="Phone Number"
+                placeholder="08000000000"
+                otherStyles="mt-4 w-[49%]"
+                keyboardType="phone-pad"
+                handleChangeText={(value) => handleChangeText('receiverPhone', value)}
+                value={formData.receiverPhone}
+                error={errors.receiverPhone}
+            />
+                
+
+            <FormField
+                title="Email"
+                placeholder="email@example.com"
+                otherStyles="mt-4 w-[49%]"
+                keyboardType="email-address"
+                handleChangeText={(value) => handleChangeText('receiverEmail', value)}
+                value={formData.receiverEmail}
+                error={errors.receiverEmail}
+            />
+                
+                
         </View>
 
         <CustomButton
