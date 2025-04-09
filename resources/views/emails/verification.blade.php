@@ -53,7 +53,7 @@
 <body>
     <div class="container">
         
-        <img src="{{ public_path('erradsguy.png') }}" alt="YourErrandsGuy Logo" class="logo"> <!-- Add logo here -->
+        <img src="https://yourerrandsguy.com.ng/images/erradsguy.png" alt="YourErrandsGuy Logo" class="logo"> <!-- Add logo here -->
         <h1>Email Verification</h1>
         <p>Hello,</p>
         <p>Thank you for signing up with <strong>YourErrandsGuy</strong>. Use the code below to verify your email address:</p>

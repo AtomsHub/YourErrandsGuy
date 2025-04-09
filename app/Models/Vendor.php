@@ -14,4 +14,8 @@ class Vendor extends Model
     {
         return $this->hasMany(VendorItem::class);
     }
+     public function deliveryfee()
+    {
+        return $this->hasMany(DeliveryFee::class);
+    }
 }

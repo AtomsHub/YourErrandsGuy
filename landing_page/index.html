@@ -9,7 +9,7 @@
     <meta name="description" content="" />
         
     <!-- Title  -->
-    <title>YourErrandGuy</title>
+    <title>YourErrandsGuy</title>
 
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="300x300" href="images" />
@@ -41,8 +41,8 @@
     <nav class="navbar navbar-expand-lg bg-body-tertiary py-3 px-lg-3 fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <img src="images/logo.png" alt="YourErrandGuy Logo" >
-                <span class="text-body-primary">YourErrandGuy</span>
+                <img src="images/logo.png" alt="YourErrandsGuy Logo" >
+                <span class="text-body-primary">YourErrandsGuy</span>
             </a>
             <!-- Toggle button for offcanvas -->
             <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
@@ -198,7 +198,7 @@
     <section class="how-its-works">
         <div class="d-md-flex gap-4 px-md-5 px-3">
             <div class="col">
-                <img src="images/errandMap.png" class="w-100 h-auto" alt="YourErrandGuy">
+                <img src="images/errandMap.png" class="w-100 h-auto" alt="YourErrandsGuy">
             </div>
             <div class="col">
                 <h5 class="section-description">Our Service</h5>
@@ -317,8 +317,8 @@
             <div class="row g-3 g-md-5" >
                 <div class="col-md-5 col-12">
                     <a class="navbar-brand d-block mb-3" href="#">
-                        <img src="images/logo.png" alt="YourErrandGuy Logo" >
-                        <span class="text-body-primary">YourErrandGuy</span>
+                        <img src="images/logo.png" alt="YourErrandsGuy Logo" >
+                        <span class="text-body-primary">YourErrandsGuy</span>
                     </a>
                     <p>Lorem ipsum dolor sit amet consectetur. Id enim cursus risus interdum mattis tellus cursus suspendisse. Sed tristique enim nibh vehicula.</p>
                     <div class="d-flex gap-3 mb-2">
