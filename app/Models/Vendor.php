@@ -18,4 +18,14 @@ class Vendor extends Model
     {
         return $this->hasMany(DeliveryFee::class);
     }
+
+    protected $fillable = ['name', 'email', 'phone', 'address', 'description', 'service_type'];
+
+
+
+
+
+
+
+
 }

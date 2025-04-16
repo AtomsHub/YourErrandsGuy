@@ -110,7 +110,7 @@
                             <li>
                                                                 <a href="restaurants" class="d-flex align-items-center gap-4">
                                         <i class="fa-solid fa-utensils"></i>     
-                                        <p>Restaurant</p>
+                                        <p>Vendor</p>
                                     </a>
                             </li>
 

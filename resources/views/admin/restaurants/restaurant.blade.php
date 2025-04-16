@@ -44,7 +44,7 @@
     <body class="dashboard">
         <section class="main-content flex-grow-1">
             <div class="p-0 h-100 d-flex align-items-stretch">
-                
+
                 <div class="sidebar offcanvas-md offcanvas-end" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel">
                     <div class="offcanvas-header d-flex justify-content-md-center justify-content-between my-4 align-items-center">
                         <div class="text-center d-flex d-md-block align-items-center">
@@ -55,19 +55,19 @@
                         </div>
                         <button type="button" class="btn-close text-light d-md-none" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasResponsive" aria-label="Close"></button>
                     </div>
-                    
+
                     <div class="top-sidebar">
                         <ul class="list-unstyled mb-0">
                             <li>
                                 <a href="../index.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-house"></i>       
+                                    <i class="fa-solid fa-house"></i>
                                     <p>Dashboard</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="../orders/" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-list"></i>      
+                                    <i class="fa-solid fa-list"></i>
                                     <p>Orders</p>
                                 </a>
                             </li>
@@ -81,35 +81,35 @@
 
                             <li>
                                 <a href="../analytics.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-chart-line"></i>   
+                                    <i class="fa-solid fa-chart-line"></i>
                                     <p>Analytics</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="../reviews.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-star"></i>     
+                                    <i class="fa-solid fa-star"></i>
                                     <p>Reviews</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="../foods.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-star"></i>     
+                                    <i class="fa-solid fa-star"></i>
                                     <p>Foods</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="../dispatchers.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-truck"></i>     
+                                    <i class="fa-solid fa-truck"></i>
                                     <p>Dispatcher</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="../restaurants" class="d-flex align-items-center gap-4 active">
-                                    <i class="fa-solid fa-utensils"></i>     
+                                    <i class="fa-solid fa-utensils"></i>
                                     <p>Restaurant</p>
                                 </a>
                             </li>
@@ -123,13 +123,13 @@
                         </ul>
                     </div>
 
-                    
+
                 </div>
 
                 <div class="dashboard-content p-3 p-md-4">
-                    
+
                     <div class="top-bar d-flex flex-row-reverse flex-md-row gap-4 justify-content-between">
-                        
+
                         <input type="search" class="d-none d-md-flex form-control" name="search" placeholder="Search" id="">
                         <hr class="d-none d-md-flex"/>
                         <div class="d-flex gap-3">
@@ -148,7 +148,7 @@
                             <button class="d-flex justify-content-center align-items-center d-md-none toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasResponsive" aria-controls="offcanvasResponsive" >
                                 <i class="fa-solid fa-bars-staggered"></i>
                             </button>
-                            
+
                         </div>
                         <hr  />
                         <div class="d-flex align-items-center justify-content-center gap-3">
@@ -159,7 +159,7 @@
                             </div>
                         </div>
                     </div>
-                
+
 
                     <h5 class="headline-small mb-1 pt-4">Restaurant Details</h5>
                     <p class="label-medium mb-4">Restaurant ID #675895</p>
@@ -171,30 +171,31 @@
                                     <div class="global-img profile-pic">
                                         <img src="../assets/img/user.png" alt="" class="img-thumbnail border-0">
                                     </div>
+
                                     <div class="">
                                         <div class="d-flex gap-2 align-items-center">
-                                            <h3 class="text-p fw-bold">Iya Rerunner Restaurant</h3>
+                                            <h3 class="text-p fw-bold">{{ $vendor->name }}</h3>
                                             <span><img src="../assets/img/svg/Star 4.svg" alt="">4</span>
                                         </div>
                                         <div class="d-md-flex gap-md-3">
                                             <div class="d-flex gap-2 my-1">
                                                 <i class="fa-solid fa-envelope caption-larger text-p"></i>
-                                                <p class="caption-larger">codewithemperor@gmai.com</p>
+                                                <p class="caption-larger">{{ $vendor->email }}</p>
                                             </div>
                                             <div class="d-flex gap-2 my-1">
                                                 <i class="fa-solid fa-phone caption-larger text-p"></i>
-                                                <p class="caption-larger">+234 805 419 4279</p>
+                                                <p class="caption-larger">{{ $vendor->phone }}</p>
                                             </div>
                                         </div>
                                         <div class="d-flex gap-2">
                                             <i class="fa-solid fa-location-dot caption-larger text-p"></i>
-                                            <p class="caption-larger">Street 11, Rumuokoro Road, Rumuokoro, Port Harcourt.</p>
+                                            <p class="caption-larger">{{ $vendor->address }}</p>
                                         </div>
 
-                                        
+
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
 
@@ -202,24 +203,26 @@
                             <div class="row flex-row-reverse gy-4">
                                 <div class="col-md-3">
                                     <div class="row row-cols-2 row-cols-md-1 gy-4">
-        
+
                                         <div class="col">
                                             <div class="dashboard-card">
                                                 <p class="dashboard-card_subtitle">No of Sales</p>
                                                 <p class="dashboard-card_title">0</p>
                                                 <p class="dashboard-card_subtitle small">vs last 24hrs: <span>0</span></p>
-        
+
                                             </div>
                                         </div>
-        
+
                                         <div class="col">
                                             <div class="dashboard-card">
                                                 <p class="dashboard-card_subtitle">Total Income</p>
                                                 <p class="dashboard-card_title">₦77k</p>
                                                 <p class="dashboard-card_subtitle small">vs last 24hrs: <span>₦0.00</span></p>
-        
+
                                             </div>
                                         </div>
+
+
                                     </div>
                                 </div>
 
@@ -242,30 +245,94 @@
 
                         </div>
 
-                        
+                        <div class="col">
+                            <div class="dashboard-card">
+                                <p class="dashboard-card_subtitle">Vendor Items</p>
+                                <div class="rounded-col table-responsive">
+                                    <table class="table table-hover" id="ride">
+                                        <thead>
+                                            <tr class="table-light text-center">
+                                                <th>Items</th>
+                                                <th>Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($items as $item)
+                                            <tr>
+                                                <td>{{ $item->name }}</td>
+                                                <td>{{ $item->price }}</td>
+                                            </tr>
+                                            @endforeach
+                                        <tbody>
 
-                        
+                                    </table>
+                                </div>
+
+                                <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addVendorModal">
+                                    Add Item
+                                </button>
+
+
+
+                            </div>
+                        </div>
+
+
+
+
                     </div>
 
 
 
 
-                   
 
 
-                    
+
+
             </div>
         </section>
 
         <!-- Modal -->
-        
-        
+
+                 <!-- Add Vendor Modal -->
+<div class="modal fade" id="addVendorModal" tabindex="-1" aria-labelledby="addVendorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ route('admin.items.store', $vendor->id) }}">
+
+        @csrf
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addVendorModalLabel">Add Item</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="itemName" class="form-label">Item Name</label>
+              <input type="text" class="form-control" id="itemName" name="name" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="vendorDescription" class="form-label">Price</label>
+                <input type="text" class="form-control" id="itemPrice" name="price" required>
+              </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary mb-3">Add Item</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-        
+
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
         <!-- Chart JS -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 

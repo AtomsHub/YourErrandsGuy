@@ -33,6 +33,7 @@ Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.
 // Protect admin routes using 'admin' middleware
 Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     Route::get('/dashboard', action: [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/restaurants', action: [AdminDashboardController::class, 'restaurants'])->name('admin.restaurants');
 
     // Customer Routes
     Route::controller(CustomerController::class)->prefix('customers')->group(function () {
@@ -57,10 +58,11 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
         Route::get('/', 'index')->name('admin.restaurants.index');
         Route::get('/{id}', 'show')->name('admin.restaurants.show');
         Route::post('/', 'store')->name('admin.restaurants.store');
+        Route::post('/{id}', 'storeItem')->name('admin.items.store');
         Route::put('/{id}', 'update')->name('admin.restaurants.update');
         Route::delete('/{id}', 'destroy')->name('admin.restaurants.destroy');
     });
-
+   
     // Food Routes
     Route::controller(FoodController::class)->prefix('foods')->group(function () {
         Route::get('/', 'index')->name('admin.foods.index');

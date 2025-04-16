@@ -68,7 +68,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Toast Container -->
         <div class="toast-container position-fixed top-0 end-0 p-3">
             <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -82,10 +82,10 @@
 
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-        
+
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
         <!-- Chart JS -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
