@@ -44,7 +44,7 @@
     <body class="dashboard">
         <section class="main-content flex-grow-1">
             <div class="p-0 h-100 d-flex align-items-stretch">
-                
+
                 <div class="sidebar offcanvas-md offcanvas-end" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel">
                     <div class="offcanvas-header d-flex justify-content-md-center justify-content-between my-4 align-items-center">
                         <div class="text-center d-flex d-md-block align-items-center">
@@ -55,19 +55,19 @@
                         </div>
                         <button type="button" class="btn-close text-light d-md-none" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasResponsive" aria-label="Close"></button>
                     </div>
-                    
+
                     <div class="top-sidebar">
                         <ul class="list-unstyled mb-0">
                             <li>
-                                <a href="index.html" class="d-flex align-items-center gap-4 active">
-                                    <i class="fa-solid fa-house"></i>       
+                                <a href="dashboard" class="d-flex align-items-center gap-4 active">
+                                    <i class="fa-solid fa-house"></i>
                                     <p>Dashboard</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="orders" class="d-flex align-items-center gap-4 ">
-                                    <i class="fa-solid fa-list"></i>      
+                                    <i class="fa-solid fa-list"></i>
                                     <p>Orders</p>
                                 </a>
                             </li>
@@ -81,35 +81,35 @@
 
                             <li>
                                 <a href="analytics.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-chart-line"></i>   
+                                    <i class="fa-solid fa-chart-line"></i>
                                     <p>Analytics</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="reviews.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-star"></i>     
+                                    <i class="fa-solid fa-star"></i>
                                     <p>Reviews</p>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="foods.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-bowl-food"></i>     
+                                <a href="foods" class="d-flex align-items-center gap-4">
+                                    <i class="fa-solid fa-bowl-food"></i>
                                     <p>Foods</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="dispatchers.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-truck"></i>     
+                                    <i class="fa-solid fa-truck"></i>
                                     <p>Dispatcher</p>
                                 </a>
                             </li>
 
                             <li>
                                                                 <a href="restaurants" class="d-flex align-items-center gap-4">
-                                        <i class="fa-solid fa-utensils"></i>     
+                                        <i class="fa-solid fa-utensils"></i>
                                         <p>Vendor</p>
                                     </a>
                             </li>
@@ -123,13 +123,13 @@
                         </ul>
                     </div>
 
-                    
+
                 </div>
 
                 <div class="dashboard-content p-3 p-md-4">
-                    
+
                     <div class="top-bar d-flex flex-row-reverse flex-md-row gap-4 justify-content-between">
-                        
+
                         <input type="search" class="d-none d-md-flex form-control" name="search" placeholder="Search" id="">
                         <hr class="d-none d-md-flex"/>
                         <div class="d-flex gap-3">
@@ -148,7 +148,7 @@
                             <button class="d-flex justify-content-center align-items-center d-md-none toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasResponsive" aria-controls="offcanvasResponsive" >
                                 <i class="fa-solid fa-bars-staggered"></i>
                             </button>
-                            
+
                         </div>
                         <hr  />
                         <div class="d-flex align-items-center justify-content-center gap-3">
@@ -159,7 +159,7 @@
                             </div>
                         </div>
                     </div>
-                
+
 
                     <h5 class="headline-small pt-4 mb-3">Dashboard</h5>
                     <div class="row row-cols-2 row-cols-lg-4 g-3 g-md-4">
@@ -172,7 +172,7 @@
                             </div>
                         </div>
 
-                        
+
                         <div class="col">
                             <div class="dashboard-card">
                                 <p class="dashboard-card_subtitle">Total Orders</p>
@@ -202,7 +202,7 @@
                     </div>
 
                     <div class="row g-4 mt-4">
-                        
+
                         <div class="col-md-6">
                             <div class="rounded-col">
                                 <p class="headline-small">Order Chart</p>
@@ -216,7 +216,7 @@
                             <div class="rounded-col">
                                 <p class="headline-small">Customer Chart</p>
                                 <div class="mt-4">
-                                    
+
                                 </div>
                             </div>
                         </div>
@@ -316,29 +316,29 @@
                                             </div>
                                             <!-- Repeat as needed -->
                                         </div>
-                                       
+
                                     </div>
 
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
 
 
-                    
+
+
             </div>
         </section>
 
         <!-- Modal -->
-        
-        
+
+
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-        
+
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
         <!-- Chart JS -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -355,21 +355,21 @@
                 const swiper = new Swiper('.swiper', {
                     slidesPerView: 3,
                     spaceBetween: 20,
-                    loop: true, 
+                    loop: true,
                     autoplay: {
-                        delay: 3000, 
+                        delay: 3000,
                         disableOnInteraction: false,
                     },
                     breakpoints: {
                         // Responsive breakpoints
                         320: {
-                            slidesPerView: 1, 
+                            slidesPerView: 1,
                         },
                         768: {
-                            slidesPerView: 2, 
+                            slidesPerView: 2,
                         },
                         992: {
-                            slidesPerView: 3, 
+                            slidesPerView: 3,
                         },
                     },
                 });

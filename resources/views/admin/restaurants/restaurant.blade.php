@@ -59,59 +59,59 @@
                     <div class="top-sidebar">
                         <ul class="list-unstyled mb-0">
                             <li>
-                                <a href="../index.html" class="d-flex align-items-center gap-4">
+                                <a href="dashboard" class="d-flex align-items-center gap-4 ">
                                     <i class="fa-solid fa-house"></i>
                                     <p>Dashboard</p>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="../orders/" class="d-flex align-items-center gap-4">
+                                <a href="orders" class="d-flex align-items-center gap-4 ">
                                     <i class="fa-solid fa-list"></i>
                                     <p>Orders</p>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="../customers/" class="d-flex align-items-center gap-4">
+                                <a href="customers" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-users"></i>
                                     <p>Customer</p>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="../analytics.html" class="d-flex align-items-center gap-4">
+                                <a href="analytics.html" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-chart-line"></i>
                                     <p>Analytics</p>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="../reviews.html" class="d-flex align-items-center gap-4">
+                                <a href="reviews.html" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-star"></i>
                                     <p>Reviews</p>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="../foods.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-star"></i>
+                                <a href="foods" class="d-flex align-items-center gap-4">
+                                    <i class="fa-solid fa-bowl-food"></i>
                                     <p>Foods</p>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="../dispatchers.html" class="d-flex align-items-center gap-4">
+                                <a href="dispatchers.html" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-truck"></i>
                                     <p>Dispatcher</p>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="../restaurants" class="d-flex align-items-center gap-4 active">
-                                    <i class="fa-solid fa-utensils"></i>
-                                    <p>Restaurant</p>
-                                </a>
+                                                                <a href="restaurants" class="d-flex align-items-center gap-4 active">
+                                        <i class="fa-solid fa-utensils"></i>
+                                        <p>Vendor</p>
+                                    </a>
                             </li>
 
                             <li>

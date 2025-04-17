@@ -43,7 +43,7 @@ class VendorController extends Controller
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|email|string|max:255',
-        'phone' => 'required|int|max:55',
+        'phone' => 'required|string|max:20',
         'address' => 'required|string|max:255',
         'description' => 'required|string|max:255',
         'service_type' => 'required|string|max:255',

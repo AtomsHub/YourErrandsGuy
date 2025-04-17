@@ -62,6 +62,7 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
         Route::put('/{id}', 'update')->name('admin.restaurants.update');
         Route::delete('/{id}', 'destroy')->name('admin.restaurants.destroy');
     });
+
    
     // Food Routes
     Route::controller(FoodController::class)->prefix('foods')->group(function () {

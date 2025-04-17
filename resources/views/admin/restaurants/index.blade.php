@@ -59,7 +59,7 @@
                     <div class="top-sidebar">
                         <ul class="list-unstyled mb-0">
                             <li>
-                                <a href="index.html" class="d-flex align-items-center gap-4 ">
+                                <a href="dashboard" class="d-flex align-items-center gap-4 ">
                                     <i class="fa-solid fa-house"></i>
                                     <p>Dashboard</p>
                                 </a>
@@ -94,7 +94,7 @@
                             </li>
 
                             <li>
-                                <a href="foods.html" class="d-flex align-items-center gap-4">
+                                <a href="foods" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-bowl-food"></i>
                                     <p>Foods</p>
                                 </a>
