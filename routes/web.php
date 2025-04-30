@@ -5,7 +5,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DispatcherController;
-use App\Http\Controllers\FoodController;
+use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\VendorController;
 use Illuminate\Support\Facades\Route;
@@ -58,19 +58,20 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
         Route::get('/', 'index')->name('admin.restaurants.index');
         Route::get('/{id}', 'show')->name('admin.restaurants.show');
         Route::post('/', 'store')->name('admin.restaurants.store');
-        Route::post('/{id}', 'storeItem')->name('admin.items.store');
-        Route::put('/{id}', 'update')->name('admin.restaurants.update');
-        Route::delete('/{id}', 'destroy')->name('admin.restaurants.destroy');
+        Route::post('/{vendorId}', 'storeItem')->name('admin.restaurants.storeitem');
+        Route::put('/{id}', 'updateItem')->name('admin.restaurants.updateitem');
+        Route::delete('/{id}', 'destroyItem')->name('admin.restaurants.destroyitem');
     });
 
-   
-    // Food Routes
-    Route::controller(FoodController::class)->prefix('foods')->group(function () {
-        Route::get('/', 'index')->name('admin.foods.index');
-        Route::get('/{id}', 'show')->name('admin.foods.show');
-        Route::post('/', 'store')->name('admin.foods.store');
-        Route::put('/{id}', 'update')->name('admin.foods.update');
-        Route::delete('/{id}', 'destroy')->name('admin.foods.destroy');
+
+
+    // Item Routes
+    Route::controller(ItemsController::class)->prefix('foods')->group(function () {
+        Route::get('/', 'index')->name('admin.items.index');
+        Route::get('/{id}', 'show')->name('admin.items.show');
+        Route::post('/', 'store')->name('admin.items.store');
+        Route::put('/{id}', 'update')->name('admin.items.update');
+        Route::delete('/{id}', 'destroy')->name('admin.items.destroy');
     });
 
     // Dispatcher Routes

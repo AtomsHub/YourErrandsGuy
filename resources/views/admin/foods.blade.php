@@ -99,7 +99,7 @@
                             <li>
                                 <a href="foods" class="d-flex align-items-center gap-4 active">
                                     <i class="fa-solid fa-bowl-food"></i>
-                                    <p>Foods</p>
+                                    <p>Items</p>
                                 </a>
                             </li>
 
@@ -169,16 +169,20 @@
                         <div class="col">
                             <div class="rounded-col">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <p class="headline-small">Food List</p>
-                                    <div class="btn btn-p text-white">
+                                    <p class="headline-small">Item List</p>
+
+                                   <!-- <div class="btn btn-p text-white">
                                         <i class="fa-solid fa-plus"></i>
                                         <a href="" class="text-white" data-bs-toggle="modal" data-bs-target="#food">Add Food</a>
-                                    </div>
+                                    </div>-->
+                                    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addVendorModal">
+                                        Add Item
+                                    </button>
                                 </div>
                                 <div class="mt-4">
 
                                     <div class="table-responsive">
-                                        <table class="table table-hover" id="foods">
+                                        <table class="table table-hover" id="">
                                             <thead>
                                                 <tr class="table-light text-center">
                                                     <th>Item Name</th>
@@ -190,23 +194,33 @@
                                                 @foreach ($items as $item)
                                                 <tr>
                                                     <td>{{  $item->name }}</td>
-                                                    <td><img src="assets/img/logs.png" alt="laundry"></td>
+                                                    <td class="text-center">
+                                                        <img src="{{ asset($item->image) }}" alt="{{ $item->name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                                                    </td>
+
                                                     <td>
                                                         <div class="d-flex">
-                                                            <!-- View Icon -->
+                                                            <!-- View Icon
                                                             <a href="#" class="text-decoration-none me-2" data-bs-toggle="modal" data-bs-target="#food">
                                                                 <i class="fas fa-eye text-primary"></i>
-                                                            </a>
+                                                            </a>-->
 
                                                             <!-- Edit Icon -->
-                                                            <a href="#" class="text-decoration-none me-2">
+                                                            <a href="#"
+                                                                class="text-decoration-none me-2 edit-item"
+                                                                data-id="{{ $item->id }}"
+                                                                data-name="{{ $item->name }}"
+                                                                data-url="{{ route('admin.items.update', $item->id) }}"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#editItemModal">
                                                                 <i class="fas fa-edit text-success"></i>
                                                             </a>
 
-                                                            <!-- Delete Icon -->
+
+                                                            <!-- Delete Icon
                                                             <a href="#" class="text-decoration-none">
                                                                 <i class="fas fa-trash-alt text-danger"></i>
-                                                            </a>
+                                                            </a>-->
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -222,12 +236,32 @@
                     </div>
 
 
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const editButtons = document.querySelectorAll('.edit-item');
+                            const form = document.getElementById('editItemForm');
+                            const nameInput = document.getElementById('editItemName');
+
+                            editButtons.forEach(button => {
+                                button.addEventListener('click', function () {
+                                    const itemId = this.getAttribute('data-id');
+                                    const itemName = this.getAttribute('data-name');
+                                    const updateUrl = this.getAttribute('data-url');
+
+                                    nameInput.value = itemName;
+                                    form.action = updateUrl;
+                                });
+                            });
+                        });
+                        </script>
+
+
 
 
             </div>
         </section>
 
-        <!-- Modal -->
+        <!-- Modal
         <div class="modal fade" id="food" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="viewUnApprovedDriverLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                 <div class="modal-content p-3 py-5 p-md-5">
@@ -240,7 +274,7 @@
                     <div class="modal-body mx-1 mx-md-3">
                         <div class="modal-form">
                             <form action="" class="row gy-4">
-                                <!-- Food Name -->
+                                Food Name
                                 <div class="col-md-6">
                                     <label for="foodName" class="form-label fw-bold">Food Name</label>
                                     <div class="position-relative">
@@ -249,7 +283,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Select Restaurant -->
+                                Select Restaurant
                                 <div class="col-md-6">
                                     <label for="restaurant" class="form-label fw-bold">Select Restaurant</label>
                                     <div class="position-relative">
@@ -263,7 +297,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Food Rate -->
+                                Food Rate
                                 <div class="col-md-4">
                                     <label for="foodRate" class="form-label fw-bold">Food Rate</label>
                                     <div class="position-relative">
@@ -272,7 +306,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Food Image -->
+                                 Food Image
                                 <div class="col-md-4">
                                     <label for="foodImg" class="form-label fw-bold">Food Image</label>
                                     <div class="position-relative">
@@ -280,7 +314,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Food Rate Per -->
+                                 Food Rate Per
                                 <div class="col-md-4">
                                     <label for="foodRatePer" class="form-label fw-bold">Food Rate Per</label>
                                     <div class="position-relative">
@@ -289,7 +323,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Food Description -->
+                                Food Description
                                 <div class="col-12">
                                     <label for="foodDescription" class="form-label fw-bold">Food Description</label>
                                     <div class="position-relative">
@@ -298,7 +332,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Submit Button -->
+                                 Submit Button
                                 <input type="submit" value="Add" class="btn btn-p w-100 mt-4 modal-button">
                             </form>
                         </div>
@@ -306,7 +340,76 @@
 
                 </div>
             </div>
+        </div>-->
+
+
+
+
+            <!-- Add Vendor Modal -->
+<div class="modal fade" id="addVendorModal" tabindex="-1" aria-labelledby="addVendorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form method="POST" action="{{ route('admin.items.store') }}" enctype="multipart/form-data">
+        @csrf
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addVendorModalLabel">Add Item</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+                <label for="vendorDescription" class="form-label">Name</label>
+                <input type="text" class="form-control" id="ItemName" name="name" required>
+              </div>
+            <div class="mb-3">
+              <label for="Category" class="form-label">Category</label>
+              <select class="form-select" id="category" name="category" required>
+
+                <option value="restaurant">Restaurant</option>
+                <option value="laundry">Laundry</option>
+                <option value="shopping mall">SuperMarket</option>
+              </select>
+            </div>
+            <div class="mb-3">
+                <label for="Image" class="form-control-file">Image</label>
+                <input id="image" type="file" class="form-control-file" name="image" >
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary mb-3">Add Item</button>
+          </div>
         </div>
+      </form>
+    </div>
+  </div>
+
+
+<!-- Edit Item Modal -->
+<div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form method="POST" id="editItemForm">
+        @csrf
+        @method('PUT')
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editItemModalLabel">Edit Item</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editItemId">
+            <div class="mb-3">
+              <label for="editItemName" class="form-label">Item Name</label>
+              <input type="text" class="form-control" id="editItemName" name="name" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
 
         <!-- jQuery -->

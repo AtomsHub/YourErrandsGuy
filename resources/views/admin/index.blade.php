@@ -96,7 +96,7 @@
                             <li>
                                 <a href="foods" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-bowl-food"></i>
-                                    <p>Foods</p>
+                                    <p>Items</p>
                                 </a>
                             </li>
 

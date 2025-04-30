@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vendor;
 use App\Models\VendorItem;
+use App\Models\Items;
 use Illuminate\Http\Request;
 
 class VendorController extends Controller
@@ -57,28 +58,60 @@ class VendorController extends Controller
 public function show($id)
 {
     $vendor = Vendor::findOrFail($id);
-    $items = $vendor->items; // Assuming there's a relation
+    $items = $vendor->items->unique('name');
+    $newitems = Items::all()->unique('name')->sortBy('id');
 
     return view('admin.restaurants.restaurant', [
-        'items' => $items
+        'items' => $items,
+        'newitems' => $newitems
     ], compact('vendor'));
 }
 
-public function storeItem(Request $request, $id)
-{
-    $vendor = Vendor::findOrFail($id);
 
-    // Validate just the item fields
-    $validated = $request->validate([
+public function storeItem($vendorId)
+{
+    // Validate incoming request data
+    $validated = request()->validate([
         'name' => 'required|string|max:255',
-        'price' => 'required|string|max:255',
+        'price' => 'required|numeric|min:0',
     ]);
 
-    // Manually add the vendor_id after validation
-    $validated['vendor_id'] = $vendor->id;
+    // Find the vendor
+    $vendor = Vendor::findOrFail($vendorId);
 
-    VendorItem::create($validated);
+    // Create and save the new item
+    $item = new VendorItem();
+    $item->vendor_id = $vendor->id;
+    $item->name = $validated['name'];
+    $item->price = $validated['price'];
+    $item->save();
 
+    // Redirect back with success message
     return redirect()->back()->with('success', 'Item added successfully!');
 }
+
+public function updateItem(Request $request, $id)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'price' => 'required|numeric|min:0',
+    ]);
+
+    $item = VendorItem::findOrFail($id);
+    $item->update($validated);
+
+    return redirect()->back()->with('success', 'Item updated successfully!');
+}
+
+public function destroyItem($id)
+{
+    $item = VendorItem::findOrFail($id);
+    $item->delete();
+
+    return redirect()->back()->with('success', 'Item deleted successfully!');
+}
+
+
+
+
 }
