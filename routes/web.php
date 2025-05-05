@@ -77,8 +77,9 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     // Dispatcher Routes
     Route::controller(DispatcherController::class)->prefix('dispatchers')->group(function () {
         Route::get('/', 'index')->name('admin.dispatchers.index');
-        Route::get('/{id}', 'show')->name('admin.dispatchers.show');
+        Route::get('/', 'show')->name('admin.dispatchers.show');
         Route::post('/', 'store')->name('admin.dispatchers.store');
+        Route::post('/{id}/approve', 'approve')->name('dispatchers.approve');
         Route::put('/{id}', 'update')->name('admin.dispatchers.update');
         Route::delete('/{id}', 'destroy')->name('admin.dispatchers.destroy');
     });

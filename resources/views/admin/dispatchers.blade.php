@@ -47,7 +47,7 @@
     <body class="dashboard">
         <section class="main-content flex-grow-1">
             <div class="p-0 h-100 d-flex align-items-stretch">
-                
+
                 <div class="sidebar offcanvas-md offcanvas-end" tabindex="-1" id="offcanvasResponsive" aria-labelledby="offcanvasResponsiveLabel">
                     <div class="offcanvas-header d-flex justify-content-md-center justify-content-between my-4 align-items-center">
                         <div class="text-center d-flex d-md-block align-items-center">
@@ -58,19 +58,19 @@
                         </div>
                         <button type="button" class="btn-close text-light d-md-none" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasResponsive" aria-label="Close"></button>
                     </div>
-                    
+
                     <div class="top-sidebar">
                         <ul class="list-unstyled mb-0">
                             <li>
                                 <a href="index.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-house"></i>       
+                                    <i class="fa-solid fa-house"></i>
                                     <p>Dashboard</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="orders" class="d-flex align-items-center gap-4 ">
-                                    <i class="fa-solid fa-list"></i>      
+                                    <i class="fa-solid fa-list"></i>
                                     <p>Orders</p>
                                 </a>
                             </li>
@@ -84,35 +84,35 @@
 
                             <li>
                                 <a href="analytics.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-chart-line"></i>   
+                                    <i class="fa-solid fa-chart-line"></i>
                                     <p>Analytics</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="reviews.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-star"></i>     
+                                    <i class="fa-solid fa-star"></i>
                                     <p>Reviews</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="foods.html" class="d-flex align-items-center gap-4">
-                                    <i class="fa-solid fa-bowl-food"></i>     
+                                    <i class="fa-solid fa-bowl-food"></i>
                                     <p>Foods</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="dispatchers.html" class="d-flex align-items-center gap-4 active">
-                                    <i class="fa-solid fa-truck"></i>     
+                                    <i class="fa-solid fa-truck"></i>
                                     <p>Dispatcher</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="restaurants" class="d-flex align-items-center gap-4">
-                                        <i class="fa-solid fa-utensils"></i>     
+                                        <i class="fa-solid fa-utensils"></i>
                                         <p>Restaurant</p>
                                 </a>
                             </li>
@@ -126,13 +126,13 @@
                         </ul>
                     </div>
 
-                    
+
                 </div>
 
                 <div class="dashboard-content p-3 p-md-4">
-                    
+
                     <div class="top-bar d-flex flex-row-reverse flex-md-row gap-4 justify-content-between">
-                        
+
                         <input type="search" class="d-none d-md-flex form-control" name="search" placeholder="Search" id="">
                         <hr class="d-none d-md-flex"/>
                         <div class="d-flex gap-3">
@@ -151,7 +151,7 @@
                             <button class="d-flex justify-content-center align-items-center d-md-none toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasResponsive" aria-controls="offcanvasResponsive" >
                                 <i class="fa-solid fa-bars-staggered"></i>
                             </button>
-                            
+
                         </div>
                         <hr  />
                         <div class="d-flex align-items-center justify-content-center gap-3">
@@ -162,177 +162,346 @@
                             </div>
                         </div>
                     </div>
-                    
+
 
                     <div class="row g-4 mt-4">
-                        
                         <div class="rounded-col">
                             <p class="d-inline-flex gap-3 mb-3 mt-1">
                                 <button class="btn btn-p" data-bs-toggle="collapse" data-bs-target="#approvedSection" aria-expanded="true" aria-controls="approvedSection">
-                                  Approved
+                                    Approved
                                 </button>
                                 <button class="btn btn-a-outline" data-bs-toggle="collapse" data-bs-target="#unapprovedSection" aria-expanded="false" aria-controls="unapprovedSection">
-                                  Unapproved
+                                    Unapproved
                                 </button>
                             </p>
                         </div>
-  
+
+                        <!-- Approved Table -->
                         <div class="rounded-col mt-4 collapse multi-collapse show" id="approvedSection">
                             <p class="headline-small text-p">Approved Dispatcher</p>
                             <div class="table-responsive">
                                 <table class="table table-hover" id="approvedDispatcher">
                                     <thead>
                                         <tr class="table-light text-center">
-                                            <th>Vehicle No</th>
-                                            <th>Vehicle Type</th>
-                                            <th>Drivers Name</th>                                    
+                                            <th>Dispatcher Name</th>
                                             <th>Email Address</th>
                                             <th>Phone Number</th>
-                                            <th>No of Dispatch</th>
-                                            <th>Earnings</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr data-bs-toggle="modal" data-bs-target="#dispatcherModal">
-                                            <td>#675895</td>
-                                            <td>#675895</td>
-                                            <td>Sulaimon Yusuf</td>
-                                            <td>sulaimong@gmail.com</td>
-                                            <td>08054194279</td>
-                                            <td>5</td>
-                                            <td>₦32,000.00</td>
+                                        @foreach ($approved as $dispatcher)
+                                        <tr data-bs-toggle="modal" data-bs-target="#approvedDispatcherModal" onclick='showDispatcherDetails(@json($dispatcher))'>
+                                            <td>{{ $dispatcher->full_name }}</td>
+                                            <td>{{ $dispatcher->email }}</td>
+                                            <td>{{ $dispatcher->phone_number }}</td>
                                         </tr>
-                                                
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
-                        </div> 
-                    
+                            <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addDispatcherModal">
+                                Register New Dispatcher
+                            </button>
+                        </div>
+
+                        <!-- Unapproved Table -->
                         <div class="rounded-col mt-4 collapse multi-collapse" id="unapprovedSection">
                             <p class="headline-small text-a">Unapproved Dispatcher</p>
                             <div class="table-responsive">
                                 <table class="table table-hover" id="unApprovedDispatcher">
                                     <thead>
                                         <tr class="table-light two text-center">
-                                            <th>Vehicle No</th>
-                                            <th>Vehicle Type</th>
-                                            <th>Drivers Name</th>                                    
+                                            <th>Dispatcher Name</th>
                                             <th>Email Address</th>
                                             <th>Phone Number</th>
-                                            <th>No of Dispatch</th>
-                                            <th>Earnings</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr data-bs-toggle="modal" data-bs-target="#dispatcherModal">
-                                            <td>#675895</td>
-                                            <td>#675895</td>
-                                            <td>Sulaimon Yusuf</td>
-                                            <td>sulaimong@gmail.com</td>
-                                            <td>08054194279</td>
-                                            <td>5</td>
-                                            <td>₦32,000.00</td>
+                                        @foreach ($unapproved as $dispatcher)
+                                        <tr data-bs-toggle="modal" data-bs-target="#unapprovedDispatcherModal" onclick='showDispatcherDetails(@json($dispatcher))'>
+                                            <td>{{ $dispatcher->full_name }}</td>
+                                            <td>{{ $dispatcher->email }}</td>
+                                            <td>{{ $dispatcher->phone_number }}</td>
                                         </tr>
-                                                
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
-                        </div> 
-
-                       
+                            <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addDispatcherModal">
+                                Register New Dispatcher
+                            </button>
+                        </div>
                     </div>
-                    
 
 
-                    
-            </div>
-        </section>
 
-        <!-- Modal -->
-        <div class="modal fade" id="dispatcherModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="dispatcherModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-                <div class="modal-content p-3 py-5 p-md-5">
-                    <div class="modal-header d-flex justify-content-between mx-1 mx-md-3 mb-3">
-                        <p class="headline-small">Dispatcher</p>
-                        <button type="button" class="btn-close mb-3 border rounded-md p-1" data-bs-dismiss="modal" aria-label="Close"></button>
-    
-                    </div>
-                    
-                    <div class="modal-body mx-1 mx-md-3">
-                        <div class="modal-text-2 text-center">
-                            <div class="modal-details-box">
-                                <p class="label-medium">Vehicle No</p>
-                                <p class="title-medium text-end">${driver.vehicle?.licensePlate  || 'N/A'}</p>
-                            </div>
-                            <div class="modal-details-box">
-                                <p class="label-medium">Vehicle Type</p>
-                                <p class="title-medium text-end">${driver.vehicle?.model || 'N/A'} ${driver.vehicle?.year || ''}</p>
-                            </div>
-                            <div class="modal-details-box">
-                                <p class="label-medium">Driver Name</p>
-                                <p class="title-medium text-end">
-                                    <img src="assets/img/user.png" class="rounded-5" height="20" width="20" alt="">
-                                    ${driver.firstname || ''} ${driver.lastname || ''}
-                                </p>
-                            </div>
-                            <div class="modal-details-box">
-                                <p class="label-medium">Email Address</p>
-                                <p class="title-medium">${driver.email || 'N/A'}</p>
-                            </div>
-                            <div class="modal-details-box">
-                                <p class="label-medium">Phone Number</p>
-                                <p class="title-medium">${driver.phone || 'N/A'}</p>
-                            </div>
-                            <div class="modal-details-box">
-                                <p class="label-medium">No of Trip</p>
-                                <p class="title-medium">${driver.tripsCount || 0}</p>
-                            </div>
-                            <div class="modal-details-box">
-                                <p class="label-medium">Ratings</p>
-                                <p class="title-medium text-end">
-                                    <img src="assets/img/svg/Star 4.svg" alt="">
-                                    ${driver.rating || 0}
-                                </p>
-                            </div>
-                            <div class="modal-details-box">
-                                <p class="label-medium">Earning</p>
-                                <p class="title-medium text-end">₦${driver.earnings?.toFixed(2) || '0.00'}</p>
-                            </div>
-                            <div class="modal-details-box">
-                                <p class="label-medium">Driver's License</p>
-                                <p class="title-medium text-end viewImage">
-                                    ${driver.vehicle?.driverLicense ? 
-                                        `<a href="${driver.vehicle.driverLicense}" target="_blank">View Image</a>` : 
-                                        'N/A'}
-                                </p>
-                            </div>
-                            <div class="modal-details-box">
-                                <p class="label-medium">Hackney Permit</p>
-                                <p class="title-medium text-end viewImage">
-                                    ${driver.vehicle?.hackneyPermit ? 
-                                        `<a href="${driver.vehicle.hackneyPermit}" target="_blank">View Image</a>` : 
-                                        'N/A'}
-                                </p>
-                            </div>
 
-                            <div class="stack gap-5 text-center mt-5">
-                                <button class="btn btn-p px-5 me-2" onclick="verifyDriver('${driver._id}', 'approved')">Approve</button>
-                                <button class="btn btn-a px-5 ms-2" onclick="verifyDriver('${driver._id}', 'rejected')">Reject</button>
+
+                    <!-- Unapproved Dispatcher Modal -->
+                    <div class="modal fade" id="unapprovedDispatcherModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="unapprovedDispatcherModal" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                            <div class="modal-content p-3 py-5 p-md-5">
+                                <div class="modal-header d-flex justify-content-between mx-1 mx-md-3 mb-3">
+                                    <p class="headline-small">Dispatcher</p>
+                                    <button type="button" class="btn-close mb-3 border rounded-md p-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+
+                                <div class="modal-body mx-1 mx-md-3">
+                                    <div class="modal-text-2 text-center">
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Driver License Number</p>
+                                            <p id="modal-license" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Plate Number</p>
+                                            <p id="modal-plate" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Dispatcher Name</p>
+                                            <p id="modal-full-name" class="title-medium text-end">
+                                                <img src="{{ asset('assets/img/user.png') }}" class="rounded-5" height="20" width="20" alt="">
+                                            </p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Email Address</p>
+                                            <p id="modal-email" class="title-medium">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Phone Number</p>
+                                            <p id="modal-phone" class="title-medium">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Home Address</p>
+                                            <p id="modal-address" class="title-medium">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Date Of Birth</p>
+                                            <p id="modal-dob" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">National ID Number</p>
+                                            <p id="modal-national-id" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">ID Uploaded</p>
+                                            <p id="modal-id-document" class="title-medium text-end viewImage">N/A</p>
+                                        </div>
+
+                                        <div class="stack gap-5 text-center mt-5">
+                                            <button id="approve-button" class="btn btn-p px-5 me-2">Approve</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                            
-                </div>
-            </div>
-        </div>
-        
-        
+
+
+
+                     <!-- Approved Dispatcher Modal -->
+                     <div class="modal fade" id="approvedDispatcherModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="approvedDispatcherModal" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                            <div class="modal-content p-3 py-5 p-md-5">
+                                <div class="modal-header d-flex justify-content-between mx-1 mx-md-3 mb-3">
+                                    <p class="headline-small">Dispatcher</p>
+                                    <button type="button" class="btn-close mb-3 border rounded-md p-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+
+                                <div class="modal-body mx-1 mx-md-3">
+                                    <div class="modal-text-2 text-center">
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Driver License Number</p>
+                                            <p id="modal-license" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Plate Number</p>
+                                            <p id="modal-plate" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Dispatcher Name</p>
+                                            <p id="modal-full-name" class="title-medium text-end">
+                                                <img src="{{ asset('assets/img/user.png') }}" class="rounded-5" height="20" width="20" alt="">
+                                            </p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Email Address</p>
+                                            <p id="modal-email" class="title-medium">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Phone Number</p>
+                                            <p id="modal-phone" class="title-medium">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Home Address</p>
+                                            <p id="modal-address" class="title-medium">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Date Of Birth</p>
+                                            <p id="modal-dob" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">National ID Number</p>
+                                            <p id="modal-national-id" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">ID Uploaded</p>
+                                            <p id="modal-id-document" class="title-medium text-end viewImage">N/A</p>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <!-- Show Errors -->
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <!-- Register Dispatcher Modal -->
+                    <div class="modal fade" id="addDispatcherModal" tabindex="-1" aria-labelledby="addDispatcherModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <form action="{{ route('admin.dispatchers.store') }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addDispatcherModalLabel">New Dispatcher</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body row g-3">
+
+                                        <div class="col-md-6">
+                                            <label for="full_name" class="form-label">Full Name</label>
+                                            <input type="text" name="full_name" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="phone_number" class="form-label">Phone Number</label>
+                                            <input type="text" name="phone_number" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" name="email" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                            <input type="date" name="date_of_birth" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label for="home_address" class="form-label">Home Address</label>
+                                            <textarea name="home_address" class="form-control" required></textarea>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="national_id_number" class="form-label">National ID Number</label>
+                                            <input type="text" name="national_id_number" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="driver_license_number" class="form-label">Driver's License Number</label>
+                                            <input type="text" name="driver_license_number" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label for="id_document" class="form-label">Upload ID Document</label>
+                                            <input type="file" name="id_document" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="motorbike_license_plate_number" class="form-label">Motorbike Plate Number</label>
+                                            <input type="text" name="motorbike_license_plate_number" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="bank_account_name" class="form-label">Bank Account Name</label>
+                                            <input type="text" name="bank_account_name" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="bank_account_number" class="form-label">Bank Account Number</label>
+                                            <input type="text" name="bank_account_number" class="form-control" required>
+                                        </div>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-success">Save Dispatcher</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JavaScript to handle modal population and approval -->
+                    <script>
+                    function showDispatcherDetails(dispatcher) {
+                        document.getElementById('modal-full-name').innerHTML = `<img src="/assets/img/user.png" class="rounded-5" height="20" width="20" alt=""> ${dispatcher.full_name ?? 'N/A'}`;
+                        document.getElementById('modal-email').innerText = dispatcher.email ?? 'N/A';
+                        document.getElementById('modal-phone').innerText = dispatcher.phone_number ?? 'N/A';
+                        document.getElementById('modal-address').innerText = dispatcher.home_address ?? 'N/A';
+                        document.getElementById('modal-dob').innerText = dispatcher.date_of_birth ?? 'N/A';
+                        document.getElementById('modal-license').innerText = dispatcher.driver_license_number ?? 'N/A';
+                        document.getElementById('modal-national-id').innerText = dispatcher.national_id_number ?? 'N/A';
+                        document.getElementById('modal-plate').innerText = dispatcher.motorbike_license_plate_number ?? 'N/A';
+
+                        const idLink = document.getElementById('modal-id-document');
+                        if (dispatcher.id_document) {
+                            idLink.innerHTML = `<a href="/storage/${dispatcher.id_document}" target="_blank">View Image</a>`;
+                        } else {
+                            idLink.innerText = 'N/A';
+                        }
+
+                        document.getElementById('approve-button').onclick = function () {
+                            approveDispatcher(dispatcher.id);
+                        };
+                    }
+
+                    function approveDispatcher(id) {
+                        fetch(`/admin/dispatchers/${id}/approve`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                            },
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                location.reload();
+                            } else {
+                                alert('Failed to approve dispatcher.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            alert('An error occurred.');
+                        });
+                    }
+                    </script>
+
+
+
+
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-        
+
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
         <!-- Chart JS -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -350,10 +519,10 @@
         <script>
             const approvedButton = document.querySelector('button[data-bs-target="#approvedSection"]');
             const unapprovedButton = document.querySelector('button[data-bs-target="#unapprovedSection"]');
-  
+
             const approvedSection = document.getElementById('approvedSection');
             const unapprovedSection = document.getElementById('unapprovedSection');
-  
+
             // Function to toggle collapsibles
             const toggleSections = (showApproved) => {
               if (showApproved) {
@@ -376,14 +545,14 @@
                 approvedButton.classList.add('btn-p-outline');
               }
             };
-  
+
             // Event listeners for button clicks
             approvedButton.addEventListener('click', () => {
               if (!approvedSection.classList.contains('show')) {
                 toggleSections(true);
               }
             });
-  
+
             unapprovedButton.addEventListener('click', () => {
               if (!unapprovedSection.classList.contains('show')) {
                 toggleSections(false);
@@ -391,6 +560,8 @@
             });
 
         </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     </body>
 </html>
