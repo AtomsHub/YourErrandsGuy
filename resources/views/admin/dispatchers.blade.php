@@ -190,7 +190,7 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($approved as $dispatcher)
-                                        <tr data-bs-toggle="modal" data-bs-target="#approvedDispatcherModal" onclick='showDispatcherDetails(@json($dispatcher))'>
+                                        <tr data-bs-toggle="modal" data-bs-target="#approvedDispatcherModal" onclick='showDispatcherDetail(@json($dispatcher))'>
                                             <td>{{ $dispatcher->full_name }}</td>
                                             <td>{{ $dispatcher->email }}</td>
                                             <td>{{ $dispatcher->phone_number }}</td>
@@ -283,6 +283,18 @@
                                             <p id="modal-national-id" class="title-medium text-end">N/A</p>
                                         </div>
                                         <div class="modal-details-box">
+                                            <p class="label-medium">Account Number</p>
+                                            <p id="modal-bank-account-number" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Account Name</p>
+                                            <p id="modal-bank-account-name" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Bank</p>
+                                            <p id="modal-bank-name" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
                                             <p class="label-medium">ID Uploaded</p>
                                             <p id="modal-id-document" class="title-medium text-end viewImage">N/A</p>
                                         </div>
@@ -311,41 +323,53 @@
                                     <div class="modal-text-2 text-center">
                                         <div class="modal-details-box">
                                             <p class="label-medium">Driver License Number</p>
-                                            <p id="modal-license" class="title-medium text-end">N/A</p>
+                                            <p id="modal2-license" class="title-medium text-end">N/A</p>
                                         </div>
                                         <div class="modal-details-box">
                                             <p class="label-medium">Plate Number</p>
-                                            <p id="modal-plate" class="title-medium text-end">N/A</p>
+                                            <p id="modal2-plate" class="title-medium text-end">N/A</p>
                                         </div>
                                         <div class="modal-details-box">
                                             <p class="label-medium">Dispatcher Name</p>
-                                            <p id="modal-full-name" class="title-medium text-end">
+                                            <p id="modal2-full-name" class="title-medium text-end">
                                                 <img src="{{ asset('assets/img/user.png') }}" class="rounded-5" height="20" width="20" alt="">
                                             </p>
                                         </div>
                                         <div class="modal-details-box">
                                             <p class="label-medium">Email Address</p>
-                                            <p id="modal-email" class="title-medium">N/A</p>
+                                            <p id="modal2-email" class="title-medium">N/A</p>
                                         </div>
                                         <div class="modal-details-box">
                                             <p class="label-medium">Phone Number</p>
-                                            <p id="modal-phone" class="title-medium">N/A</p>
+                                            <p id="modal2-phone" class="title-medium">N/A</p>
                                         </div>
                                         <div class="modal-details-box">
                                             <p class="label-medium">Home Address</p>
-                                            <p id="modal-address" class="title-medium">N/A</p>
+                                            <p id="modal2-address" class="title-medium">N/A</p>
                                         </div>
                                         <div class="modal-details-box">
                                             <p class="label-medium">Date Of Birth</p>
-                                            <p id="modal-dob" class="title-medium text-end">N/A</p>
+                                            <p id="modal2-dob" class="title-medium text-end">N/A</p>
                                         </div>
                                         <div class="modal-details-box">
                                             <p class="label-medium">National ID Number</p>
-                                            <p id="modal-national-id" class="title-medium text-end">N/A</p>
+                                            <p id="modal2-national-id" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Account Number</p>
+                                            <p id="modal2-bank-account-number" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Account Name</p>
+                                            <p id="modal2-bank-account-name" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Bank</p>
+                                            <p id="modal2-bank-name" class="title-medium text-end">N/A</p>
                                         </div>
                                         <div class="modal-details-box">
                                             <p class="label-medium">ID Uploaded</p>
-                                            <p id="modal-id-document" class="title-medium text-end viewImage">N/A</p>
+                                            <p id="modal2-id-document" class="title-medium text-end viewImage">N/A</p>
                                         </div>
 
 
@@ -437,6 +461,11 @@
                                             <input type="text" name="bank_account_number" class="form-control" required>
                                         </div>
 
+                                        <div class="col-md-6">
+                                            <label for="bank_name" class="form-label">Bank Name</label>
+                                            <input type="text" name="bank_name" class="form-control" required>
+                                        </div>
+
                                     </div>
                                     <div class="modal-footer">
                                         <button type="submit" class="btn btn-success">Save Dispatcher</button>
@@ -450,7 +479,7 @@
                     <!-- JavaScript to handle modal population and approval -->
                     <script>
                     function showDispatcherDetails(dispatcher) {
-                        document.getElementById('modal-full-name').innerHTML = `<img src="/assets/img/user.png" class="rounded-5" height="20" width="20" alt=""> ${dispatcher.full_name ?? 'N/A'}`;
+                        document.getElementById('modal-full-name').innerHTML = ` ${dispatcher.full_name ?? 'N/A'}`;
                         document.getElementById('modal-email').innerText = dispatcher.email ?? 'N/A';
                         document.getElementById('modal-phone').innerText = dispatcher.phone_number ?? 'N/A';
                         document.getElementById('modal-address').innerText = dispatcher.home_address ?? 'N/A';
@@ -458,18 +487,48 @@
                         document.getElementById('modal-license').innerText = dispatcher.driver_license_number ?? 'N/A';
                         document.getElementById('modal-national-id').innerText = dispatcher.national_id_number ?? 'N/A';
                         document.getElementById('modal-plate').innerText = dispatcher.motorbike_license_plate_number ?? 'N/A';
+                        document.getElementById('modal-bank-account-number').innerText = dispatcher.bank_account_number ?? 'N/A';
+                        document.getElementById('modal-bank-account-name').innerText = dispatcher.bank_account_name ?? 'N/A';
+                        document.getElementById('modal-bank-name').innerText = dispatcher.bank_name ?? 'N/A';
 
                         const idLink = document.getElementById('modal-id-document');
-                        if (dispatcher.id_document) {
-                            idLink.innerHTML = `<a href="/storage/${dispatcher.id_document}" target="_blank">View Image</a>`;
+                        if (dispatcher.id_document_path) {
+
+                            idLink.innerHTML = `<a href="/${dispatcher.id_document_path}" target="_blank">View Document</a>`;
+
                         } else {
                             idLink.innerText = 'N/A';
                         }
 
-                        document.getElementById('approve-button').onclick = function () {
+                         document.getElementById('approve-button').onclick = function () {
                             approveDispatcher(dispatcher.id);
                         };
                     }
+
+                    function showDispatcherDetail(dispatcher) {
+                        document.getElementById('modal2-full-name').innerHTML = ` ${dispatcher.full_name ?? 'N/A'}`;
+                        document.getElementById('modal2-email').innerText = dispatcher.email ?? 'N/A';
+                        document.getElementById('modal2-phone').innerText = dispatcher.phone_number ?? 'N/A';
+                        document.getElementById('modal2-address').innerText = dispatcher.home_address ?? 'N/A';
+                        document.getElementById('modal2-dob').innerText = dispatcher.date_of_birth ?? 'N/A';
+                        document.getElementById('modal2-license').innerText = dispatcher.driver_license_number ?? 'N/A';
+                        document.getElementById('modal2-national-id').innerText = dispatcher.national_id_number ?? 'N/A';
+                        document.getElementById('modal2-plate').innerText = dispatcher.motorbike_license_plate_number ?? 'N/A';
+                        document.getElementById('modal2-bank-account-number').innerText = dispatcher.bank_account_number ?? 'N/A';
+                        document.getElementById('modal2-bank-account-name').innerText = dispatcher.bank_account_name ?? 'N/A';
+                        document.getElementById('modal2-bank-name').innerText = dispatcher.bank_name ?? 'N/A';
+
+                        const idLink = document.getElementById('modal2-id-document');
+                        if (dispatcher.id_document_path) {
+
+                            idLink.innerHTML = `<a href="/${dispatcher.id_document_path}" target="_blank">View Document</a>`;
+
+                        } else {
+                            idLink.innerText = 'N/A';
+                        }
+                    }
+
+
 
                     function approveDispatcher(id) {
                         fetch(`/admin/dispatchers/${id}/approve`, {

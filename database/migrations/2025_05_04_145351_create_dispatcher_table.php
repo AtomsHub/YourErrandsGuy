@@ -21,6 +21,7 @@ class CreateDispatchersTable extends Migration
             $table->string('motorbike_license_plate_number');
             $table->string('bank_account_name');
             $table->string('bank_account_number');
+            $table->string('bank_name');
             $table->enum('status', ['approved', 'unapproved'])->default('active');
             $table->timestamps();
         });

@@ -22,18 +22,30 @@ class DispatcherController extends Controller
             'date_of_birth' => 'required|date',
             'national_id_number' => 'required|string|unique:dispatchers,national_id_number',
             'driver_license_number' => 'required|string|unique:dispatchers,driver_license_number',
-            'id_document' => 'required|file|mimes:jpeg,png,pdf',
             'motorbike_license_plate_number' => 'required|string',
             'bank_account_name' => 'required|string',
             'bank_account_number' => 'required|string',
+            'bank_name' => 'required|string',
         ]);
 
-    //    $idDocumentPath = $request->file('id_document')->store('id_documents');
 
-        $idDocumentPath = $request->file('id_document')?->store('id_documents');
-if (!$idDocumentPath) {
-    return back()->withErrors(['id_document' => 'Failed to upload document']);
-}
+
+                $idDocumentPath = null;
+
+                if (isset($request['id_document'])) {
+
+                if ($request->hasFile('id_document')) {
+                $docs = $request->file('id_document');
+                $filename = $docs->getClientOriginalName(); // yam.jpg
+                $destinationPath = public_path('documents');
+
+                // Move image to public folder
+                $docs->move($destinationPath, $filename);
+
+                // Save correct public path in DB
+                $idDocumentPath = 'documents/' . $filename;
+                }
+                }
 
 
         Dispatcher::create([
@@ -48,11 +60,13 @@ if (!$idDocumentPath) {
             'motorbike_license_plate_number' => $validated['motorbike_license_plate_number'],
             'bank_account_name' => $validated['bank_account_name'],
             'bank_account_number' => $validated['bank_account_number'],
+            'bank_name' => $validated['bank_name'],
             'status' => 'unapproved', // Default to active
         ]);
 
         return redirect()->route('admin.dispatchers.store')->with('success', 'Dispatcher registered successfully.');
     }
+
 
     public function approve($id)
     {

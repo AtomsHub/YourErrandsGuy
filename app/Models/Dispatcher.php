@@ -21,6 +21,7 @@ class Dispatcher extends Model
         'motorbike_license_plate_number',
         'bank_account_name',
         'bank_account_number',
+        'bank_name',
         'status',
     ];
 }
