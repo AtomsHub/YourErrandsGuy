@@ -104,7 +104,7 @@
                             </li>
 
                             <li>
-                                <a href="dispatchers.html" class="d-flex align-items-center gap-4">
+                                <a href="dispatchers" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-truck"></i>
                                     <p>Dispatcher</p>
                                 </a>
