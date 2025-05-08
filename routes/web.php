@@ -80,6 +80,7 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
         Route::get('/', 'show')->name('admin.dispatchers.show');
         Route::post('/', 'store')->name('admin.dispatchers.store');
         Route::post('/{id}/approve', 'approve')->name('dispatchers.approve');
+        Route::post('/{id}/disapprove', 'disapprove')->name('dispatchers.disapprove');
         Route::put('/{id}', 'update')->name('admin.dispatchers.update');
         Route::delete('/{id}', 'destroy')->name('admin.dispatchers.destroy');
     });

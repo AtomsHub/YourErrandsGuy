@@ -23,5 +23,7 @@ class Dispatcher extends Model
         'bank_account_number',
         'bank_name',
         'status',
+        'hackney_permit',
+        'license_expiration_date'
     ];
 }

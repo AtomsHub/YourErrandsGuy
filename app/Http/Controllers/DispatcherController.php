@@ -26,6 +26,7 @@ class DispatcherController extends Controller
             'bank_account_name' => 'required|string',
             'bank_account_number' => 'required|string',
             'bank_name' => 'required|string',
+            'license_expiration_date' => 'required|date',
         ]);
 
 
@@ -36,7 +37,7 @@ class DispatcherController extends Controller
 
                 if ($request->hasFile('id_document')) {
                 $docs = $request->file('id_document');
-                $filename = $docs->getClientOriginalName(); // yam.jpg
+                $filename = $docs->getClientOriginalName();
                 $destinationPath = public_path('documents');
 
                 // Move image to public folder
@@ -44,6 +45,23 @@ class DispatcherController extends Controller
 
                 // Save correct public path in DB
                 $idDocumentPath = 'documents/' . $filename;
+                }
+                }
+
+                $hackneyPermitPath = null;
+
+                if (isset($request['hackney_permit'])) {
+
+                if ($request->hasFile('hackney_permit')) {
+                $docus = $request->file('hackney_permit');
+                $hackneyname = $docus->getClientOriginalName();
+                $hackneyPath = public_path('documents');
+
+                // Move image to public folder
+                $docus->move($hackneyPath, $hackneyname);
+
+                // Save correct public path in DB
+                $hackneyPermitPath = 'documents/' . $hackneyname;
                 }
                 }
 
@@ -61,6 +79,8 @@ class DispatcherController extends Controller
             'bank_account_name' => $validated['bank_account_name'],
             'bank_account_number' => $validated['bank_account_number'],
             'bank_name' => $validated['bank_name'],
+            'license_expiration_date' => $validated['license_expiration_date'],
+            'hackney_permit' => $hackneyPermitPath,
             'status' => 'unapproved', // Default to active
         ]);
 
@@ -77,11 +97,21 @@ class DispatcherController extends Controller
         return response()->json(['message' => 'Dispatcher approved.']);
     }
 
+    public function disapprove($id)
+    {
+        $dispatcher = Dispatcher::findOrFail($id);
+        $dispatcher->status = 'disapproved';
+        $dispatcher->save();
+
+        return response()->json(['message' => 'Dispatcher disapproved.']);
+    }
+
     public function show()
     {
         $approved = Dispatcher::where('status', 'approved')->get();
         $unapproved = Dispatcher::where('status', 'unapproved')->get();
+        $disapproved = Dispatcher::where('status', 'disapproved')->get();
 
-        return view('admin.dispatchers', compact('approved', 'unapproved'));
+        return view('admin.dispatchers', compact('approved', 'unapproved', 'disapproved'));
     }
 }

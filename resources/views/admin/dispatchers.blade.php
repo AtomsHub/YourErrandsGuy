@@ -170,9 +170,16 @@
                                 <button class="btn btn-p" data-bs-toggle="collapse" data-bs-target="#approvedSection" aria-expanded="true" aria-controls="approvedSection">
                                     Approved
                                 </button>
-                                <button class="btn btn-a-outline" data-bs-toggle="collapse" data-bs-target="#unapprovedSection" aria-expanded="false" aria-controls="unapprovedSection">
+                                <button class="btn btn-a-outline" data-bs-toggle="collapse" data-bs-target="#unapprovedSection" aria-expanded="true" aria-controls="unapprovedSection">
                                     Unapproved
                                 </button>
+                                <button class="btn btn-outline-danger" data-bs-toggle="collapse" data-bs-target="#disapprovedSection" aria-expanded="false" aria-controls="disapprovedSection">
+                                    Disapproved
+                                </button>
+
+
+
+
                             </p>
                         </div>
 
@@ -204,9 +211,12 @@
                             </button>
                         </div>
 
+
+
+
                         <!-- Unapproved Table -->
                         <div class="rounded-col mt-4 collapse multi-collapse" id="unapprovedSection">
-                            <p class="headline-small text-a">Unapproved Dispatcher</p>
+                            <p class="headline-small text-d">Unapproved Dispatcher</p>
                             <div class="table-responsive">
                                 <table class="table table-hover" id="unApprovedDispatcher">
                                     <thead>
@@ -234,10 +244,37 @@
                     </div>
 
 
+                        <!-- disapproved Table -->
+                        <div class="rounded-col mt-4 collapse multi-collapse" id="disapprovedSection">
+                            <p class="headline-small text-d">Unapproved Dispatcher</p>
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="disApprovedDispatcher">
+                                    <thead>
+                                        <tr class="table-light two text-center">
+                                            <th>Dispatcher Name</th>
+                                            <th>Email Address</th>
+                                            <th>Phone Number</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($disapproved as $dispatcher)
+                                        <tr data-bs-toggle="modal" data-bs-target="#disapprovedDispatcherModal" onclick='showDispatcherDetail2(@json($dispatcher))'>
+                                            <td>{{ $dispatcher->full_name }}</td>
+                                            <td>{{ $dispatcher->email }}</td>
+                                            <td>{{ $dispatcher->phone_number }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addDispatcherModal">
+                                Register New Dispatcher
+                            </button>
+                        </div>
+                    </div>
 
 
-
-                    <!-- Unapproved Dispatcher Modal -->
+                     <!-- Unapproved Dispatcher Modal -->
                     <div class="modal fade" id="unapprovedDispatcherModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="unapprovedDispatcherModal" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                             <div class="modal-content p-3 py-5 p-md-5">
@@ -251,6 +288,10 @@
                                         <div class="modal-details-box">
                                             <p class="label-medium">Driver License Number</p>
                                             <p id="modal-license" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">License Expiration Date</p>
+                                            <p id="modal-license-expiration" class="title-medium text-end">N/A</p>
                                         </div>
                                         <div class="modal-details-box">
                                             <p class="label-medium">Plate Number</p>
@@ -298,6 +339,10 @@
                                             <p class="label-medium">ID Uploaded</p>
                                             <p id="modal-id-document" class="title-medium text-end viewImage">N/A</p>
                                         </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Hackney Permit</p>
+                                            <p id="modal-hackney-permit" class="title-medium text-end viewImage">N/A</p>
+                                        </div>
 
                                         <div class="stack gap-5 text-center mt-5">
                                             <button id="approve-button" class="btn btn-p px-5 me-2">Approve</button>
@@ -307,6 +352,85 @@
                             </div>
                         </div>
                     </div>
+
+
+                     <!-- Disapproved Dispatcher Modal -->
+                     <div class="modal fade" id="disapprovedDispatcherModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="disapprovedDispatcherModal" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                            <div class="modal-content p-3 py-5 p-md-5">
+                                <div class="modal-header d-flex justify-content-between mx-1 mx-md-3 mb-3">
+                                    <p class="headline-small">Dispatcher</p>
+                                    <button type="button" class="btn-close mb-3 border rounded-md p-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+
+                                <div class="modal-body mx-1 mx-md-3">
+                                    <div class="modal-text-2 text-center">
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Driver License Number</p>
+                                            <p id="modal3-license" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">License Expiration Date</p>
+                                            <p id="modal3-license-expiration" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Plate Number</p>
+                                            <p id="modal3-plate" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Dispatcher Name</p>
+                                            <p id="modal3-full-name" class="title-medium text-end">
+                                                <img src="{{ asset('assets/img/user.png') }}" class="rounded-5" height="20" width="20" alt="">
+                                            </p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Email Address</p>
+                                            <p id="modal3-email" class="title-medium">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Phone Number</p>
+                                            <p id="modal3-phone" class="title-medium">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Home Address</p>
+                                            <p id="modal3-address" class="title-medium">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Date Of Birth</p>
+                                            <p id="modal3-dob" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">National ID Number</p>
+                                            <p id="modal3-national-id" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Account Number</p>
+                                            <p id="modal3-bank-account-number" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Account Name</p>
+                                            <p id="modal3-bank-account-name" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Bank</p>
+                                            <p id="modal3-bank-name" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">ID Uploaded</p>
+                                            <p id="modal3-id-document" class="title-medium text-end viewImage">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Hackney Permit</p>
+                                            <p id="modal3-hackney-permit" class="title-medium text-end viewImage">N/A</p>
+                                        </div>
+
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
 
 
@@ -324,6 +448,10 @@
                                         <div class="modal-details-box">
                                             <p class="label-medium">Driver License Number</p>
                                             <p id="modal2-license" class="title-medium text-end">N/A</p>
+                                        </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">License Expiration Date</p>
+                                            <p id="modal2-license-expiration" class="title-medium text-end">N/A</p>
                                         </div>
                                         <div class="modal-details-box">
                                             <p class="label-medium">Plate Number</p>
@@ -371,6 +499,15 @@
                                             <p class="label-medium">ID Uploaded</p>
                                             <p id="modal2-id-document" class="title-medium text-end viewImage">N/A</p>
                                         </div>
+                                        <div class="modal-details-box">
+                                            <p class="label-medium">Hackney Permit</p>
+                                            <p id="modal2-hackney-permit" class="title-medium text-end viewImage">N/A</p>
+                                        </div>
+
+                                        <div class="stack gap-5 text-center mt-5">
+                                            <button id="disapprove-button" class="btn btn-danger px-5 me-2">Disapprove</button>
+                                        </div>
+
 
 
                                     </div>
@@ -441,9 +578,19 @@
                                             <input type="text" name="driver_license_number" class="form-control" required>
                                         </div>
 
+                                        <div class="col-md-6">
+                                            <label for="license_expiration_date" class="form-label">License Expiration Date</label>
+                                            <input type="date" name="license_expiration_date" class="form-control" required>
+                                        </div>
+
                                         <div class="col-12">
                                             <label for="id_document" class="form-label">Upload ID Document</label>
                                             <input type="file" name="id_document" class="form-control" required>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label for="hackney_permit" class="form-label">Upload Hackney Permit</label>
+                                            <input type="file" name="hackney_permit" class="form-control" required>
                                         </div>
 
                                         <div class="col-md-6">
@@ -485,6 +632,7 @@
                         document.getElementById('modal-address').innerText = dispatcher.home_address ?? 'N/A';
                         document.getElementById('modal-dob').innerText = dispatcher.date_of_birth ?? 'N/A';
                         document.getElementById('modal-license').innerText = dispatcher.driver_license_number ?? 'N/A';
+                        document.getElementById('modal-license-expiration').innerText = dispatcher.license_expiration_date ?? 'N/A';
                         document.getElementById('modal-national-id').innerText = dispatcher.national_id_number ?? 'N/A';
                         document.getElementById('modal-plate').innerText = dispatcher.motorbike_license_plate_number ?? 'N/A';
                         document.getElementById('modal-bank-account-number').innerText = dispatcher.bank_account_number ?? 'N/A';
@@ -500,6 +648,15 @@
                             idLink.innerText = 'N/A';
                         }
 
+                        const hackneyLink = document.getElementById('modal-hackney-permit');
+                        if (dispatcher.hackney_permit) {
+
+                            hackneyLink.innerHTML = `<a href="/${dispatcher.hackney_permit}" target="_blank">View Document</a>`;
+
+                        } else {
+                            hackneyLink.innerText = 'N/A';
+                        }
+
                          document.getElementById('approve-button').onclick = function () {
                             approveDispatcher(dispatcher.id);
                         };
@@ -512,6 +669,7 @@
                         document.getElementById('modal2-address').innerText = dispatcher.home_address ?? 'N/A';
                         document.getElementById('modal2-dob').innerText = dispatcher.date_of_birth ?? 'N/A';
                         document.getElementById('modal2-license').innerText = dispatcher.driver_license_number ?? 'N/A';
+                        document.getElementById('modal2-license-expiration').innerText = dispatcher.license_expiration_date ?? 'N/A';
                         document.getElementById('modal2-national-id').innerText = dispatcher.national_id_number ?? 'N/A';
                         document.getElementById('modal2-plate').innerText = dispatcher.motorbike_license_plate_number ?? 'N/A';
                         document.getElementById('modal2-bank-account-number').innerText = dispatcher.bank_account_number ?? 'N/A';
@@ -526,6 +684,55 @@
                         } else {
                             idLink.innerText = 'N/A';
                         }
+
+                        const hackneyLink = document.getElementById('modal2-hackney-permit');
+                        if (dispatcher.hackney_permit) {
+
+                            hackneyLink.innerHTML = `<a href="/${dispatcher.hackney_permit}" target="_blank">View Document</a>`;
+
+                        } else {
+                            hackneyLink.innerText = 'N/A';
+                        }
+
+                        document.getElementById('disapprove-button').onclick = function () {
+                            disapproveDispatcher(dispatcher.id);
+                        };
+
+                    }
+
+
+                    function showDispatcherDetail2(dispatcher) {
+                        document.getElementById('modal3-full-name').innerHTML = ` ${dispatcher.full_name ?? 'N/A'}`;
+                        document.getElementById('modal3-email').innerText = dispatcher.email ?? 'N/A';
+                        document.getElementById('modal3-phone').innerText = dispatcher.phone_number ?? 'N/A';
+                        document.getElementById('modal3-address').innerText = dispatcher.home_address ?? 'N/A';
+                        document.getElementById('modal3-dob').innerText = dispatcher.date_of_birth ?? 'N/A';
+                        document.getElementById('modal3-license').innerText = dispatcher.driver_license_number ?? 'N/A';
+                        document.getElementById('modal3-license-expiration').innerText = dispatcher.license_expiration_date ?? 'N/A';
+                        document.getElementById('modal3-national-id').innerText = dispatcher.national_id_number ?? 'N/A';
+                        document.getElementById('modal3-plate').innerText = dispatcher.motorbike_license_plate_number ?? 'N/A';
+                        document.getElementById('modal3-bank-account-number').innerText = dispatcher.bank_account_number ?? 'N/A';
+                        document.getElementById('modal3-bank-account-name').innerText = dispatcher.bank_account_name ?? 'N/A';
+                        document.getElementById('modal3-bank-name').innerText = dispatcher.bank_name ?? 'N/A';
+
+                        const idLink = document.getElementById('modal3-id-document');
+                        if (dispatcher.id_document_path) {
+
+                            idLink.innerHTML = `<a href="/${dispatcher.id_document_path}" target="_blank">View Document</a>`;
+
+                        } else {
+                            idLink.innerText = 'N/A';
+                        }
+
+                        const hackneyLink = document.getElementById('modal3-hackney-permit');
+                        if (dispatcher.hackney_permit) {
+
+                            hackneyLink.innerHTML = `<a href="/${dispatcher.hackney_permit}" target="_blank">View Document</a>`;
+
+                        } else {
+                            hackneyLink.innerText = 'N/A';
+                        }
+
                     }
 
 
@@ -543,6 +750,28 @@
                                 location.reload();
                             } else {
                                 alert('Failed to approve dispatcher.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            alert('An error occurred.');
+                        });
+                    }
+
+
+                    function disapproveDispatcher(id) {
+                        fetch(`/admin/dispatchers/${id}/disapprove`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                            },
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                location.reload();
+                            } else {
+                                alert('Failed to disapprove dispatcher.');
                             }
                         })
                         .catch(error => {
@@ -578,49 +807,75 @@
         <script>
             const approvedButton = document.querySelector('button[data-bs-target="#approvedSection"]');
             const unapprovedButton = document.querySelector('button[data-bs-target="#unapprovedSection"]');
+            const disapprovedButton = document.querySelector('button[data-bs-target="#disapprovedSection"]');
 
             const approvedSection = document.getElementById('approvedSection');
             const unapprovedSection = document.getElementById('unapprovedSection');
+            const disapprovedSection = document.getElementById('disapprovedSection');
 
-            // Function to toggle collapsibles
-            const toggleSections = (showApproved) => {
-              if (showApproved) {
-                // Show the approved, hide the unapproved
-                approvedSection.classList.add('show');
-                unapprovedSection.classList.remove('show');
-                approvedButton.classList.remove('btn-p-outline');
-                approvedButton.classList.add('btn-p');
+            // Function to toggle sections
+            const toggleSections = (section) => {
+              // Hide all sections first
+              approvedSection.classList.remove('show');
+              unapprovedSection.classList.remove('show');
+              disapprovedSection.classList.remove('show');
 
-                unapprovedButton.classList.remove('btn-a');
-                unapprovedButton.classList.add('btn-a-outline');
-              } else {
-                // Show the unapproved, hide the approved
-                unapprovedSection.classList.add('show');
-                approvedSection.classList.remove('show');
-                unapprovedButton.classList.remove('btn-a-outline');
-                unapprovedButton.classList.add('btn-a');
+              approvedButton.classList.remove('btn-p');
+              approvedButton.classList.add('btn-p-outline');
 
-                approvedButton.classList.remove('btn-p');
-                approvedButton.classList.add('btn-p-outline');
+              unapprovedButton.classList.remove('btn-a');
+              unapprovedButton.classList.add('btn-a-outline');
+
+              disapprovedButton.classList.remove('btn-danger');
+              disapprovedButton.classList.add('btn-outline-danger');
+
+
+              // Show selected section and style corresponding button
+              switch (section) {
+                case 'approved':
+                  approvedSection.classList.add('show');
+                  approvedButton.classList.add('btn-p');
+                  approvedButton.classList.remove('btn-p-outline');
+                  break;
+                case 'unapproved':
+                  unapprovedSection.classList.add('show');
+                  unapprovedButton.classList.add('btn-a');
+                  unapprovedButton.classList.remove('btn-a-outline');
+                  break;
+                case 'disapproved':
+                  disapprovedSection.classList.add('show');
+                  disapprovedButton.classList.add('btn-danger');
+                  disapprovedButton.classList.remove('btn-outline-danger');
+
+                  break;
               }
             };
 
-            // Event listeners for button clicks
+            // Event listeners
             approvedButton.addEventListener('click', () => {
               if (!approvedSection.classList.contains('show')) {
-                toggleSections(true);
+                toggleSections('approved');
               }
             });
 
             unapprovedButton.addEventListener('click', () => {
               if (!unapprovedSection.classList.contains('show')) {
-                toggleSections(false);
+                toggleSections('unapproved');
               }
             });
 
-        </script>
+            disapprovedButton.addEventListener('click', () => {
+              if (!disapprovedSection.classList.contains('show')) {
+                toggleSections('disapproved');
+              }
+            });
+          </script>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     </body>
 </html>
+
+
+
+
