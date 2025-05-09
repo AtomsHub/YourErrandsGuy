@@ -48,6 +48,7 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
     Route::controller(OrderController::class)->prefix('orders')->group(function () {
         Route::get('/', 'index')->name('admin.orders.index');
         Route::get('/{id}', 'show')->name('admin.orders.show');
+        Route::post('/assign-dispatcher', 'assignDispatcher')->name('admin.orders.assign.dispatcher');
         Route::post('/', 'store')->name('admin.orders.store');
         Route::put('/{id}', 'update')->name('admin.orders.update');
         Route::delete('/{id}', 'destroy')->name('admin.orders.destroy');
