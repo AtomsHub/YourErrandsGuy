@@ -99,21 +99,21 @@
                             <li>
                                 <a href="foods" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-bowl-food"></i>
-                                    <p>Foods</p>
+                                    <p>Items</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="dispatchers" class="d-flex align-items-center gap-4 active">
                                     <i class="fa-solid fa-truck"></i>
-                                    <p>Dispatcher</p>
+                                    <p>Dispatchers</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="restaurants" class="d-flex align-items-center gap-4">
                                         <i class="fa-solid fa-utensils"></i>
-                                        <p>Restaurant</p>
+                                        <p>Vendors</p>
                                 </a>
                             </li>
 
@@ -424,7 +424,7 @@
                                             <p id="modal3-hackney-permit" class="title-medium text-end viewImage">N/A</p>
                                         </div>
 
-                                        
+
                                     </div>
                                 </div>
                             </div>

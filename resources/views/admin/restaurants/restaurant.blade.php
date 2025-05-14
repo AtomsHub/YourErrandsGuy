@@ -59,21 +59,21 @@
                     <div class="top-sidebar">
                         <ul class="list-unstyled mb-0">
                             <li>
-                                <a href="dashboard" class="d-flex align-items-center gap-4 ">
+                                <a href="/admin/dashboard" class="d-flex align-items-center gap-4 ">
                                     <i class="fa-solid fa-house"></i>
                                     <p>Dashboard</p>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="orders" class="d-flex align-items-center gap-4 ">
+                                <a href="/admin/orders" class="d-flex align-items-center gap-4 ">
                                     <i class="fa-solid fa-list"></i>
                                     <p>Orders</p>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="customers" class="d-flex align-items-center gap-4">
+                                <a href="/admin/customers" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-users"></i>
                                     <p>Customer</p>
                                 </a>
@@ -94,23 +94,23 @@
                             </li>
 
                             <li>
-                                <a href="foods" class="d-flex align-items-center gap-4">
+                                <a href="/admin/foods" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-bowl-food"></i>
                                     <p>Items</p>
                                 </a>
                             </li>
 
                             <li>
-                                <a href="dispatchers" class="d-flex align-items-center gap-4">
+                                <a href="/admin/dispatchers" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-truck"></i>
-                                    <p>Dispatcher</p>
+                                    <p>Dispatchers</p>
                                 </a>
                             </li>
 
                             <li>
-                                                                <a href="restaurants" class="d-flex align-items-center gap-4 active">
+                                                                <a href="/admin/restaurants" class="d-flex align-items-center gap-4 active">
                                         <i class="fa-solid fa-utensils"></i>
-                                        <p>Vendor</p>
+                                        <p>Vendors</p>
                                     </a>
                             </li>
 

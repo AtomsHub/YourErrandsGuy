@@ -7,6 +7,12 @@ use App\Models\Dispatcher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Models\User;
+use App\Models\Vendor;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+
 
 class OrderController extends Controller
 {
@@ -144,14 +150,34 @@ class OrderController extends Controller
         'order_id' => 'required|exists:orders,id',
     ]);
 
+    $dispatcher = Dispatcher::findOrFail($request->dispatcher_id);
     $order = Order::find($request->order_id);
+    $user = User::findOrFail($order->user_id);
     $order->dispatcher_id = $request->dispatcher_id;
     $order->status = 'Rider Dispatched';
     $order->save();
 
-    return redirect()->back()->with('success', 'Dispatcher assigned successfully!');
-}
+       // Send email to the customer
+       //if ($order->user && $order->user->email) {
+        //Mail::to($order->user->email)->send(new DispatcherAssigned($order, $order->dispatcher_id));}
 
+         // Send the verification email
+         Mail::send('emails.dispatcher_assigned', ['user_name' => $user->fullname,
+         'order_id'=>$order->id,
+         'dispatcher_name'=> $dispatcher->full_name,
+          'dispatcher_phone_number'=>$dispatcher->phone_number],
+         function ($message) use ($user) {
+            $message->to($user->email);
+            $message->subject('Order Assigned To Disaptcher');
+        });
+
+
+
+
+
+   // return ApiResponse::success(null, 'Dispatcher details sent to user.');
+    return redirect()->back()->with('success', 'Dispatcher assigned and eamil sent successfully!');
+}
 
 
 

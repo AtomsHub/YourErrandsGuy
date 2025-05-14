@@ -106,14 +106,14 @@
                             <li>
                                 <a href="dispatchers" class="d-flex align-items-center gap-4">
                                     <i class="fa-solid fa-truck"></i>
-                                    <p>Dispatcher</p>
+                                    <p>Dispatchers</p>
                                 </a>
                             </li>
 
                             <li>
                                 <a href="restaurants" class="d-flex align-items-center gap-4">
                                         <i class="fa-solid fa-utensils"></i>
-                                        <p>Vendor</p>
+                                        <p>Vendors</p>
                                 </a>
                             </li>
 
