@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Dispatcher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Custom\ApiResponse;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class DispatcherController extends Controller
 {
@@ -14,6 +18,8 @@ class DispatcherController extends Controller
 
     public function store(Request $request)
     {
+
+
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:15',
@@ -27,6 +33,7 @@ class DispatcherController extends Controller
             'bank_account_number' => 'required|string',
             'bank_name' => 'required|string',
             'license_expiration_date' => 'required|date',
+
         ]);
 
 
@@ -66,6 +73,11 @@ class DispatcherController extends Controller
                 }
 
 
+                $password = Str::random(6); // generates a 10-character password
+                $hashedPassword = Hash::make($password);
+
+
+
         Dispatcher::create([
             'full_name' => $validated['full_name'],
             'phone_number' => $validated['phone_number'],
@@ -82,7 +94,14 @@ class DispatcherController extends Controller
             'license_expiration_date' => $validated['license_expiration_date'],
             'hackney_permit' => $hackneyPermitPath,
             'status' => 'unapproved', // Default to active
+            'password' => $hashedPassword,
         ]);
+
+          Mail::send('emails.dispatcher', ['password' =>$hashedPassword, 'full_name'=> $validated['full_name']],
+         function ($message) use ($validated) {
+            $message->to($validated['email']);
+            $message->subject('Password Auto Generated');
+        });
 
         return redirect()->route('admin.dispatchers.store')->with('success', 'Dispatcher registered successfully.');
     }
