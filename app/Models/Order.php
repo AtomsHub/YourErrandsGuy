@@ -21,4 +21,10 @@ class Order extends Model
         return $this->belongsTo(Vendor::class, 'vendor_id');
     }
 
+    public function dispatcher()
+{
+    return $this->belongsTo(Dispatcher::class);
+}
+
+
 }

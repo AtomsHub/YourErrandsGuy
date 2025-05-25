@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Vendor extends Model
 {
     use HasFactory;
-    protected $guarded = [];
+
 
     public function items()
     {
@@ -18,4 +18,7 @@ class Vendor extends Model
     {
         return $this->hasMany(DeliveryFee::class);
     }
+
+    protected $fillable = ['name', 'email', 'phone', 'address', 'description', 'service_type'];
+
 }

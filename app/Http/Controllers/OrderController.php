@@ -3,9 +3,16 @@
 namespace App\Http\Controllers;
 use App\Custom\ApiResponse;
 use App\Models\Order;
+use App\Models\Dispatcher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Models\User;
+use App\Models\Vendor;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+
 
 class OrderController extends Controller
 {
@@ -44,14 +51,14 @@ class OrderController extends Controller
                     'rate' => $item['rate'] ?? $item['price'] ?? null,
                     'pricePerItem' => $item['pricePerItem'] ?? 0.00,
                     'serviceName' => $item['serviceName'] ?? null,
-                    
+
                 ]);
             }
         }
 
         return response()->json(['message' => 'Orders saved successfully!']);
     }
-    
+
     public function getUserOrders(Request $request)
     {
         $user = auth()->user();
@@ -65,7 +72,7 @@ class OrderController extends Controller
                 unset($order->restaurant); // Remove the extra object
                 return $order;
             });
-    
+
         // Return the orders in a structured response
         return ApiResponse::success($orders, 'Orders fetched successfully');
     }
@@ -74,7 +81,7 @@ class OrderController extends Controller
     {
         return DB::table('vendors')->where('name', $restaurantName)->value('id');
     }
-    
+
     public function updateOrder(Request $request)
     {
         // Validate the input
@@ -83,7 +90,7 @@ class OrderController extends Controller
             'tx_ref' => 'required|string',  // Reference to update
             'status' => 'required|string',  // Status to update
         ]);
-        
+
         // dd($request->input('status'));
          $status = $request->input('status');
         if($status=='successful'){
@@ -91,7 +98,7 @@ class OrderController extends Controller
         }else{
              $status = $request->input('status');
         }
-    
+
         // Update the order in the database
         $updated = DB::table('orders')
             ->where('trans_id', $validated['trans_id']) // Match by transaction ID
@@ -100,29 +107,29 @@ class OrderController extends Controller
                 'status' =>  $status,
                 'updated_at' => Carbon::now(), // Update the timestamp
             ]);
-    
+
         // Check if any rows were updated
         if ($updated) {
-            
+
              if($status=='successful' || $status=='Processing'){
               return ApiResponse::success(null, 'Order Placed successfully!');
             }else{
                 return ApiResponse::notFound('Transaction Failed.');
             }
-           
+
         }
-    
+
         return ApiResponse::notFound('Order not found or no changes made.');
     }
 
 
     public function index()
     {
-       
+
         $totalOrders = Order::count();
         $Orders = Order::with('customer','vendor')->get();
         // $totalFoods = Food::count();
-       
+
 
         return view('admin.orders.index', compact('Orders', 'totalOrders'));
     }
@@ -132,8 +139,48 @@ class OrderController extends Controller
     {
         // dd( $id);
         $order =Order::find($id);
-        return view('admin.orders.order', compact('order'));
+        $approved = Dispatcher::where('status', 'approved')->get();
+        return view('admin.orders.order', compact('order', 'approved'));
     }
+
+    public function assignDispatcher(Request $request)
+{
+    $request->validate([
+        'dispatcher_id' => 'required|exists:dispatchers,id',
+        'order_id' => 'required|exists:orders,id',
+    ]);
+
+    $dispatcher = Dispatcher::findOrFail($request->dispatcher_id);
+    $order = Order::find($request->order_id);
+    $user = User::findOrFail($order->user_id);
+    $order->dispatcher_id = $request->dispatcher_id;
+    $order->status = 'Rider Dispatched';
+    $order->save();
+
+       // Send email to the customer
+       //if ($order->user && $order->user->email) {
+        //Mail::to($order->user->email)->send(new DispatcherAssigned($order, $order->dispatcher_id));}
+
+         // Send the verification email
+         Mail::send('emails.dispatcher_assigned', ['user_name' => $user->fullname,
+         'order_id'=>$order->id,
+         'dispatcher_name'=> $dispatcher->full_name,
+          'dispatcher_phone_number'=>$dispatcher->phone_number],
+         function ($message) use ($user) {
+            $message->to($user->email);
+            $message->subject('Order Assigned To Disaptcher');
+        });
+
+
+
+
+
+   // return ApiResponse::success(null, 'Dispatcher details sent to user.');
+    return redirect()->back()->with('success', 'Dispatcher assigned and eamil sent successfully!');
+}
+
+
+
 
 
 

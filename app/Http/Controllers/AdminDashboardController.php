@@ -19,4 +19,5 @@ class AdminDashboardController extends Controller
 
         return view('admin.index', compact('totalCustomers', 'totalOrders', 'totalVendors'));
     }
+    
 }
