@@ -12,6 +12,67 @@ class DispatcherController extends Controller
         return view ('admin.dispatchers');
     }
 
+    
+    // Login method
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return ApiResponse::validationFailed($validator->errors());
+        }
+
+        $user = Dispatcher::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return ApiResponse::failed('Invalid credentials.', null, 401);
+        }
+
+        if (!$user->status != "approved") {
+            return ApiResponse::failed('Dispatcher is yet to be verified.', null, 403);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+      
+
+
+        return ApiResponse::success([
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->full_name,
+                'phone_number' => $user->phone_number,
+                'email' => $user->email,
+                'home_address' => $user->home_address,
+                'date_of_birth' => $user->date_of_birth,
+                'national_id_number' => $user->national_id_number,
+                'driver_license_number' => $user->driver_license_number,
+                'id_document_path' => $user->id_document_path,
+                'motorbike_license_plate_number' => $user->motorbike_license_plate_number,
+                'bank_account_name' => $user->bank_account_name,
+                'bank_account_number' => $user->bank_account_number,
+                'bank_name' => $user->bank_name,
+            ],
+           
+            'vendors' => $vendors->map(function ($vendor) {
+                return [
+                    'id' => $vendor->id,
+                    'name' => $vendor->name,
+                    'address' => $vendor->address,
+                    'description' => $vendor->description,
+                    'image' => $vendor->image,
+                    'tag' => $vendor->tag,
+                    'deliveryfee' => $vendor->deliveryfee,
+                    'items' => $vendor->items, // Include items if necessary
+                ];
+            }),
+        ], 'Login successfully.');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
