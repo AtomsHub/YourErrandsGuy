@@ -22,7 +22,7 @@ class CreateDispatchersTable extends Migration
             $table->string('bank_account_name');
             $table->string('bank_account_number');
             $table->string('bank_name');
-            $table->enum('status', ['approved', 'unapproved', 'disapproved'])->default('approved');
+            $table->enum('status', ['approved', 'unapproved', 'disapproved'])->default('unapproved');
             $table->timestamps();
         });
     }
