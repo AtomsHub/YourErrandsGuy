@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dispatcher;
+use App\Models\Order;
 use Illuminate\Http\Request;
 
 class DispatcherController extends Controller
@@ -175,4 +176,97 @@ class DispatcherController extends Controller
 
         return view('admin.dispatchers', compact('approved', 'unapproved', 'disapproved'));
     }
+
+
+    // OrderController.php
+    public function completeByTransactionId(Request $request)
+    {
+        
+        $request->validate([
+            'trans_id' => 'required|string|exists:orders,trans_id',
+        ]);
+
+        $user = auth()->user();
+        $order = Order::where('trans_id', $request->transaction_id)->first();
+
+        // Ensure the user is either the owner or the assigned dispatcher
+      
+        $isDispatcher = $order->dispatcher_id === $user->id;
+
+        if ( ! $isDispatcher) {
+            return response()->json(['message' => 'Unauthorized. You are not assigned to this order.'], 403);
+        }
+
+        if ($order->status === 'completed') {
+            return response()->json(['message' => 'Order already completed'], 400);
+        }
+
+        // Proceed with completion
+        $order->status = 'completed';
+        $order->completed_at = now();
+        $order->save();
+
+        // Credit dispatcher's wallet with service charge
+        $dispatcher = Dispatcher::where('id', $user->id)->first();
+
+        if (! $dispatcher) {
+            return response()->json(['message' => 'Dispatcher profile not found'], 404);
+        }
+
+        $serviceCharge = $order->delivery_fee ?? 0; // Make sure this field exists
+
+        $dispatcher->walletBalance += $serviceCharge;
+        $dispatcher->save();
+
+        // Transaction::create([
+        //     'user_id'       => $user->id,
+        //     'dispatcher_id' => $dispatcher->id,
+        //     'order_id'      => $order->id,
+        //     'status'        => 'credit',
+        //     'amount'        => $serviceCharge,
+        // ]);
+    
+        // return response()->json([
+        //     'message'            => 'Order marked as completed',
+        //     'completed_at'       => $order->completed_at,
+        //     'credited_amount'    => $serviceCharge,
+        //     'new_wallet_balance' => $dispatcher->walletBalance,
+        // ]);
+
+        return response()->json([
+            'message' => 'Order marked as completed',
+            'completed_at' => $order->completed_at,
+        ]);
+    }
+    public function changePassword(Request $request)
+    {
+        // Validate input fields
+        $validator = Validator::make($request->all(), [
+          
+            'password_reset_code' => 'required|numeric',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return ApiResponse::validationFailed($validator->errors());
+        }
+
+        // Retrieve the user by email and reset code
+        $user = User::where('email', $request->email)
+            ->where('password_reset_code', $request->password_reset_code)
+            ->first();
+
+        if (!$user) {
+            return ApiResponse::failed('Invalid reset code or email.', null, 400);
+        }
+
+        // Update the user's password and clear the reset code
+        $user->password = Hash::make($request->password);
+        $user->password_reset_code = null;
+        $user->save();
+
+        return ApiResponse::success(null, 'Password changed successfully.');
+    }
+
+
 }

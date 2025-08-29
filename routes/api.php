@@ -3,9 +3,11 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeliveryController;
+use App\Http\Controllers\DispatcherController;
 use App\Http\Controllers\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -46,6 +48,16 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/dropoff-locations/{pickup}', [DeliveryController::class, 'getDropoffLocations']);
     Route::get('/delivery-fee', [DeliveryController::class, 'getDeliveryFee']);
     
+});
+
+Route::post('dispatch-login', [DispatcherController::class, 'login']);
+Route::post('dispatch-change-password', [DispatcherController::class, 'changePassword']);
+
+Route::middleware(['auth:sanctum', 'verified', 'is.dispatcher'])->group(function () {
+    Route::get('dispatcher/dashboard', [DispatcherController::class, 'index']);
+    Route::get('dispatcher/orders', [DispatcherController::class, 'getAllOrders']);
+    Route::post('dispatcher/order-complete', [DispatcherController::class, 'completeByTransactionId']);
+
 });
 
 

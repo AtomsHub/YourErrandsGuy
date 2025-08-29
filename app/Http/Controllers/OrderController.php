@@ -22,7 +22,9 @@ class OrderController extends Controller
     {
         $userId = auth()->id(); // Logged-in user ID
         $cartItems = $request->input('cartItems');
-         $transaction_id = $request->input('transaction_id');
+        $transaction_id = $request->input('transaction_id');
+        $long = $request->input('longitude');
+        $lati = $request->input('latitude');
 
         foreach ($cartItems as $cartItem) {
             // Insert into orders table
@@ -38,6 +40,8 @@ class OrderController extends Controller
                 'form_details' => json_encode($cartItem['formDetails']),
                  'items' => json_encode($cartItem['items']),
                 'status' => 'Make Payment',
+                'longitude'=>$long,
+                'latitude'=>$lati,
                 'created_at' => Carbon::now(),
             ]);
 
@@ -64,7 +68,7 @@ class OrderController extends Controller
         $user = auth()->user();
 
         // Fetch orders with restaurant name when restaurant_id is present
-        $orders = $user->orders()->select('id', 'service_type', 'item_amount', 'delivery_fee','delivery_landmark', 'total_amount', 'status', 'vendor_id', 'created_at')
+        $orders = $user->orders()->select('id', 'service_type', 'item_amount', 'delivery_fee','delivery_landmark', 'total_amount', 'status', 'vendor_id', 'created_at','longitude','latitude')
             ->with(['vendor:id,name']) // Load the vendor's name
             ->get()
             ->map(function ($order) {
