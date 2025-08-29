@@ -66,6 +66,7 @@ class OrderController extends Controller
     public function getUserOrders(Request $request)
     {
         $user = auth()->user();
+        
 
         // Fetch orders with restaurant name when restaurant_id is present
         $orders = $user->orders()->select('id', 'service_type', 'item_amount', 'delivery_fee','delivery_landmark', 'total_amount', 'status', 'vendor_id', 'created_at','longitude','latitude')
