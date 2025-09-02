@@ -22,7 +22,9 @@ class OrderController extends Controller
     {
         $userId = auth()->id(); // Logged-in user ID
         $cartItems = $request->input('cartItems');
-         $transaction_id = $request->input('transaction_id');
+        $transaction_id = $request->input('transaction_id');
+        $long = $request->input('longitude');
+        $lati = $request->input('latitude');
 
         foreach ($cartItems as $cartItem) {
             // Insert into orders table
@@ -38,6 +40,8 @@ class OrderController extends Controller
                 'form_details' => json_encode($cartItem['formDetails']),
                  'items' => json_encode($cartItem['items']),
                 'status' => 'Make Payment',
+                'longitude'=>$long,
+                'latitude'=>$lati,
                 'created_at' => Carbon::now(),
             ]);
 
@@ -65,7 +69,7 @@ class OrderController extends Controller
         
 
         // Fetch orders with restaurant name when restaurant_id is present
-        $orders = $user->orders()->select('id', 'service_type', 'item_amount', 'delivery_fee','delivery_landmark', 'total_amount', 'status', 'vendor_id', 'created_at')
+        $orders = $user->orders()->select('id', 'service_type', 'item_amount', 'delivery_fee','delivery_landmark', 'total_amount', 'status', 'vendor_id', 'created_at','longitude','latitude')
             ->with(['vendor:id,name']) // Load the vendor's name
             ->get()
             ->map(function ($order) {
@@ -145,40 +149,40 @@ class OrderController extends Controller
     }
 
     public function assignDispatcher(Request $request)
-{
-    $request->validate([
-        'dispatcher_id' => 'required|exists:dispatchers,id',
-        'order_id' => 'required|exists:orders,id',
-    ]);
+    {
+        $request->validate([
+            'dispatcher_id' => 'required|exists:dispatchers,id',
+            'order_id' => 'required|exists:orders,id',
+        ]);
 
-    $dispatcher = Dispatcher::findOrFail($request->dispatcher_id);
-    $order = Order::find($request->order_id);
-    $user = User::findOrFail($order->user_id);
-    $order->dispatcher_id = $request->dispatcher_id;
-    $order->status = 'Rider Dispatched';
-    $order->save();
+        $dispatcher = Dispatcher::findOrFail($request->dispatcher_id);
+        $order = Order::find($request->order_id);
+        $user = User::findOrFail($order->user_id);
+        $order->dispatcher_id = $request->dispatcher_id;
+        $order->status = 'Rider Dispatched';
+        $order->save();
 
-       // Send email to the customer
-       //if ($order->user && $order->user->email) {
-        //Mail::to($order->user->email)->send(new DispatcherAssigned($order, $order->dispatcher_id));}
+        // Send email to the customer
+        //if ($order->user && $order->user->email) {
+            //Mail::to($order->user->email)->send(new DispatcherAssigned($order, $order->dispatcher_id));}
 
-         // Send the verification email
-         Mail::send('emails.dispatcher_assigned', ['user_name' => $user->fullname,
-         'order_id'=>$order->id,
-         'dispatcher_name'=> $dispatcher->full_name,
-          'dispatcher_phone_number'=>$dispatcher->phone_number],
-         function ($message) use ($user) {
-            $message->to($user->email);
-            $message->subject('Order Assigned To Disaptcher');
-        });
-
-
+            // Send the verification email
+            Mail::send('emails.dispatcher_assigned', ['user_name' => $user->fullname,
+            'order_id'=>$order->id,
+            'dispatcher_name'=> $dispatcher->full_name,
+            'dispatcher_phone_number'=>$dispatcher->phone_number],
+            function ($message) use ($user) {
+                $message->to($user->email);
+                $message->subject('Order Assigned To Disaptcher');
+            });
 
 
 
-   // return ApiResponse::success(null, 'Dispatcher details sent to user.');
-    return redirect()->back()->with('success', 'Dispatcher assigned and eamil sent successfully!');
-}
+
+
+        // return ApiResponse::success(null, 'Dispatcher details sent to user.');
+        return redirect()->back()->with('success', 'Dispatcher assigned and eamil sent successfully!');
+    }
 
 
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Custom\ApiResponse;
 use App\Models\Vendor;
+use App\Models\item;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -11,23 +12,22 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $popular = Vendor::with('items','deliveryfee')->where('tag','popular')->get();
-        $vendors = Vendor::with('items','deliveryfee')->where('service_type','Restaurant')->get();
-        $laundries = Vendor::with('items','deliveryfee')->where('service_type','Laundry')->get();
+        $popular = Vendor::with('vitems','deliveryfee','vendorItems.item')->where('tag','popular')->get();
+        $vendors = Vendor::with('vitems','deliveryfee','vendorItems.item')->where('service_type','Restaurant')->get();
+        $laundries = Vendor::with('vitems','deliveryfee','vendorItems.item')->where('service_type','Laundry')->get();
         
         $popular->each(function ($vendor) {
-            $vendor->items->each->makeHidden(['wash', 'starch', 'iron']);
+            $vendor->vitems->each->makeHidden(['wash', 'starch', 'iron']);
         });
         
         $vendors->each(function ($vendor) {
-            $vendor->items->each->makeHidden(['wash', 'starch', 'iron']);
+            $vendor->vitems->each->makeHidden(['wash', 'starch', 'iron']);
         });
 
         return ApiResponse::success([
             'user' => [
                 'id' => $user->id,
                 'fullname' => $user->fullname,
-                
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'dob' => $user->dob,
@@ -38,10 +38,10 @@ class DashboardController extends Controller
                     'name' => $popular->name,
                     'address' => $popular->address,
                     'description' => $popular->description,
-                    'image' => $popular->image,
+                    'image' => $popular->item->image ?? null,
                     'tag' => $popular->tag,
                     'deliveryfee' => $popular->deliveryfee,
-                    'items' => $popular->items, // Include items if necessary
+                    'items' => $popular->vitems, // Include vitems if necessary
                 ];
             }),
             'vendors' => $vendors->map(function ($vendor) {
@@ -50,10 +50,10 @@ class DashboardController extends Controller
                     'name' => $vendor->name,
                     'address' => $vendor->address,
                     'description' => $vendor->description,
-                    'image' => $vendor->image,
+                    'image' => $vendor->item->image ?? null,
                     'tag' => $vendor->tag,
                     'deliveryfee' => $vendor->deliveryfee,
-                    'items' => $vendor->items, // Include items if necessary
+                    'items' => $vendor->vitems, // Include vitems if necessary
                 ];
             }),
             'laundries' => $laundries->map(function ($laundry) {
@@ -62,10 +62,10 @@ class DashboardController extends Controller
                     'name' => $laundry->name,
                     'address' => $laundry->address,
                     'description' => $laundry->description,
-                    'image' => $laundry->image, // Ensure correct image path
+                    'image' => $laundry->item->image ?? null, // Ensure correct image path
                     'tag' => $laundry->tag,
                     'deliveryfee' => $laundry->deliveryfee, // Convert to float
-                    'items' => $laundry->items->map(function ($item) {
+                    'items' => $laundry->vitems->map(function ($item) {
                         return [
                             'id' => $item->id,
                             'name' => $item->name,

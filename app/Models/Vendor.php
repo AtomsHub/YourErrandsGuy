@@ -3,22 +3,46 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 
-class Vendor extends Model
+class Vendor extends Authenticatable
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
 
+    protected $fillable = [
+        'name',
+        'username',
+        'email',
+        'phone',
+        'address',
+        'description',
+        'service_type',
+        'image',
+        'tag',
+        'walletBalance',
+        'password',
+    ];
 
-    public function items()
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    public function vitems()
     {
         return $this->hasMany(VendorItem::class);
     }
-     public function deliveryfee()
+
+    public function deliveryfee()
     {
         return $this->hasMany(DeliveryFee::class);
     }
 
-    protected $fillable = ['name', 'email', 'phone', 'address', 'description', 'service_type'];
+    public function vendorItems()
+    {
+        return $this->hasMany(VendorItem::class, 'vendor_id');
+    }
 
 }

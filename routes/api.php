@@ -3,9 +3,12 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeliveryController;
+use App\Http\Controllers\DispatcherController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\VendorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -48,7 +51,39 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     
 });
 
+Route::post('dispatch-login', [DispatcherController::class, 'login']);
+Route::post('dispatch-change-password', [DispatcherController::class, 'changePassword']);
+
+Route::middleware(['auth:sanctum', 'verified', 'is.dispatcher'])->group(function () {
+    Route::get('dispatcher/dashboard', [DispatcherController::class, 'index']);
+    Route::get('dispatcher/orders', [DispatcherController::class, 'getAllOrders']);
+    Route::post('dispatcher/order-complete', [DispatcherController::class, 'completeByTransactionId']);
+
+});
 
 
+Route::prefix('vendor')->name('vendor.')->group(function () {
+    // Public vendor routes
+    Route::post('login', [VendorController::class, 'login'])->name('login');
+    Route::post('change-password', [VendorController::class, 'changePassword'])->name('changePassword');
+
+    // Protected vendor routes
+    Route::middleware(['auth:sanctum', 'verified', 'is.vendor'])->group(function () {
+        Route::get('dashboard', [VendorController::class, 'dashboard'])->name('dashboard');
+        Route::get('orders', [VendorController::class, 'getAllOrders'])->name('orders');
+        // Route::post('showapi', [VendorController::class, 'completeByTransactionId'])->name('order.complete');
+
+         Route::post('/{id}/process', [VendorController::class, 'process'])->name('process');
+
+
+        Route::get('/show', [VendorController::class, 'showapi'])->name('show');
+        // Route::post('/vendoritem/store', [VendorController::class, 'store'])->name('store');
+        Route::put('/vendoritem/{id}', [VendorController::class, 'updateItemapi'])->name('update');
+        Route::delete('/{id}', [VendorController::class, 'destroyItemapi'])->name('destroy');
+
+    });
+});
+
+// VendorController
 
 // DispatcherController

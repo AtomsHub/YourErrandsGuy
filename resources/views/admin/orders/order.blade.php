@@ -14,8 +14,8 @@
             $status = $order->status;
 
             $stepStatus = [
-                'created' => in_array($status, ['Make Payment', 'Processing', 'Rider Dispatched', 'Completed']),
-                'payment' => in_array($status, ['Processing', 'Rider Dispatched', 'Completed']),
+                'Make Payment' => in_array($status, ['Make Payment', 'Processing', 'Rider Dispatched', 'Completed']),
+                'Processing' => in_array($status, ['Processing', 'Rider Dispatched', 'Completed']),
                 'dispatched' => in_array($status, ['Rider Dispatched', 'Completed']),
                 'delivered' => $status === 'Completed',
             ];
@@ -23,7 +23,7 @@
 
         <div class="row row-cols-4 progress-tracker">
             <!-- Order Created -->
-            <div class="progress-step {{ $stepStatus['created'] ? 'completed' : '' }}">
+            <div class="progress-step {{ $stepStatus['Make Payment'] ? 'completed' : '' }}">
                 <div class="progress-circle"></div>
                 <div class="progress-line"></div>
                 <h5>Order Created</h5>
@@ -31,10 +31,10 @@
             </div>
 
             <!-- Payment Successful -->
-            <div class="progress-step {{ $stepStatus['payment'] ? 'completed' : '' }}">
+            <div class="progress-step {{ $stepStatus['Processing'] ? 'completed' : '' }}">
                 <div class="progress-circle"></div>
                 <div class="progress-line"></div>
-                <h5>Payment Successful</h5>
+                <h5>Vendor Processing</h5>
                 <p>{{ $order->created_at->format('D, d M Y g:i A') }}</p>
             </div>
 

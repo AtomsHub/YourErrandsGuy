@@ -22,9 +22,21 @@ class Order extends Model
     }
 
     public function dispatcher()
-{
-    return $this->belongsTo(Dispatcher::class);
-}
+    {
+        return $this->belongsTo(Dispatcher::class);
+    }
+
+
+    /**
+     * Order has many cart items.
+     */
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class, 'order_id');
+    }
+
+
+    
 
 
 }

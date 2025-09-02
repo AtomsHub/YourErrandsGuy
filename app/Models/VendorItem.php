@@ -16,5 +16,13 @@ class VendorItem extends Model
         return $this->belongsTo(Vendor::class);
     }
 
+    public function item()
+    {
+        return $this->belongsTo(Items::class, 'items_id');
+    }
+    
+
+
+
     protected $fillable = ['name', 'price', 'vendor_id'];
 }
