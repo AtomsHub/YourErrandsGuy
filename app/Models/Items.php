@@ -12,4 +12,9 @@ class Items extends Model
     public $timestamps = false;
 
     protected $fillable = ['name', 'category', 'image'];
+
+    public function vendorItems()
+    {
+        return $this->hasMany(VendorItem::class, 'items_id');
+    }
 }

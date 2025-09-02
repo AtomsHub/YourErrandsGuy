@@ -16,7 +16,7 @@ class AddEmailAndPhoneToVendorsTable extends Migration
     public function up(): void
 {
     Schema::table('vendors', function (Blueprint $table) {
-        $table->string('email')->unique(); // or after any existing column
+        $table->string('email')->unique()->nullable(); // or after any existing column
         $table->string('phone')->nullable();
 
     });

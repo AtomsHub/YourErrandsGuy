@@ -1,49 +1,57 @@
 <?php
 
 return [
+        'defaults' => [
+    'guard' => 'web',  // default
+    'passwords' => 'users',
+],
 
-    'defaults' => [
-        'guard' => 'web',
-        'passwords' => 'users',
+'guards' => [
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
     ],
 
-    'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
-        'admin' => [
-            'driver' => 'session',
-            'provider' => 'admins',
-        ],
+    'admin' => [
+        'driver' => 'session',
+        'provider' => 'admins',
     ],
 
-    'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\User::class,
-        ],
-        'admins' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Admin::class,
-        ],
+    'vendor' => [
+        'driver' => 'session',
+        'provider' => 'vendors',
     ],
 
-    'passwords' => [
-        'users' => [
-            'provider' => 'users',
-            'table' => 'password_resets',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-        'admins' => [
-            'provider' => 'admins',
-            'table' => 'admin_password_resets',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
+    'dispatcher' => [
+        'driver' => 'session',
+        'provider' => 'dispatchers',
     ],
 
-    'password_timeout' => 10800,
+    // Sanctum guard (important if you use API tokens)
+    'api' => [
+        'driver' => 'sanctum',
+        'provider' => null,
+    ],
+],
+
+'providers' => [
+    'users' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\User::class,
+    ],
+    'admins' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Admin::class,
+    ],
+    'vendors' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Vendor::class,
+    ],
+    'dispatchers' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Dispatcher::class,
+    ],
+],
+
 
 ];

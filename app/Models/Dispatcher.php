@@ -27,4 +27,10 @@ class Dispatcher extends Model
     //     'license_expiration_date'
     // ];
     protected $guarded = [];
+     public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    
 }

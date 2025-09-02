@@ -72,9 +72,9 @@ class AuthController extends Controller
         $user->save();
 
         $token = $user->createToken('auth_token')->plainTextToken;
-        $popular = Vendor::with('items','deliveryfee')->where('tag','popular')->get();
-        $vendors = Vendor::with('items','deliveryfee')->where('service_type','Restaurant')->get();
-        $laundries = Vendor::with('items','deliveryfee')->where('service_type','Laundry')->get();
+        $popular = Vendor::with('vitems','deliveryfee','vendorItems.item')->where('tag','popular')->get();
+        $vendors = Vendor::with('vitems','deliveryfee','vendorItems.item')->where('service_type','Restaurant')->get();
+        $laundries = Vendor::with('vitems','deliveryfee','vendorItems.item')->where('service_type','Laundry')->get();
 
         return ApiResponse::success([
             'token' => $token,
@@ -144,16 +144,16 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        $popular = Vendor::with('items','deliveryfee')->where('tag','popular')->get();
-        $vendors = Vendor::with('items','deliveryfee')->where('service_type','Restaurant')->get();
-        $laundries = Vendor::with('items','deliveryfee')->where('service_type','Laundry')->get();
+        $popular = Vendor::with('vitems','deliveryfee','vendorItems.item')->where('tag','popular')->get();
+        $vendors = Vendor::with('vitems','deliveryfee','vendorItems.item')->where('service_type','Restaurant')->get();
+        $laundries = Vendor::with('vitems','deliveryfee','vendorItems.item')->where('service_type','Laundry')->get();
         
         $popular->each(function ($vendor) {
-            $vendor->items->each->makeHidden(['wash', 'starch', 'iron']);
+            $vendor->vitems->each->makeHidden(['wash', 'starch', 'iron']);
         });
         
         $vendors->each(function ($vendor) {
-            $vendor->items->each->makeHidden(['wash', 'starch', 'iron']);
+            $vendor->vitems->each->makeHidden(['wash', 'starch', 'iron']);
         });
 
 
@@ -173,7 +173,7 @@ class AuthController extends Controller
                     'name' => $popular->name,
                     'address' => $popular->address,
                     'description' => $popular->description,
-                    'image' => $popular->image,
+                    'image' => $popular->item->image ?? null,
                     'tag' => $popular->tag,
                      'deliveryfee' => $popular->deliveryfee,
                     'items' => $popular->items, // Include items if necessary
@@ -185,7 +185,7 @@ class AuthController extends Controller
                     'name' => $vendor->name,
                     'address' => $vendor->address,
                     'description' => $vendor->description,
-                    'image' => $vendor->image,
+                    'image' => $vendor->item->image ?? null,
                     'tag' => $vendor->tag,
                     'deliveryfee' => $vendor->deliveryfee,
                     'items' => $vendor->items, // Include items if necessary
@@ -200,7 +200,7 @@ class AuthController extends Controller
                     'image' => $laundry->image, // Ensure correct image path
                     'tag' => $laundry->tag,
                     'deliveryfee' => $laundry->deliveryfee, // Convert to float
-                    'items' => $laundry->items->map(function ($item) {
+                    'items' => $laundry->vitems->map(function ($item) {
                         return [
                             'id' => $item->id,
                             'name' => $item->name,
@@ -209,7 +209,7 @@ class AuthController extends Controller
                                 'iron' => (float) $item->iron,  // Convert iron to float
                                 'starch' => (float) $item->starch,  // Convert starch to float
                             ],
-                            'image' => $item->image,
+                            'image' => $item->item->image ?? null,
                             'created_at' => $item->created_at,
                             'updated_at' => $item->updated_at,
                         ];

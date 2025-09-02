@@ -42,7 +42,7 @@
     <div class="container">
 
 
-        <!--<img src=" {{  asset('images/logo.png')}} " alt="YourErrandsGuy Logo" class="logo">   Add logo here -->
+         <img src="https://yourerrandsguy.com.ng/images/erradsguy.png" alt="YourErrandsGuy Logo" class="logo">
 
         <h2>Hello {{ $user_name ?? 'Customer' }},</h2>
 

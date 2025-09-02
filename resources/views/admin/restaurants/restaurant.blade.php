@@ -302,7 +302,7 @@
                       <select class="form-select" name="name" required>
                         <option value="">Select Item</option>
                         @foreach ($newitems as $newitem)
-                          <option value="{{ $newitem->name }}">{{ $newitem->name }}</option>
+                          <option value="{{ $newitem->id }}">{{ $newitem->name }}</option>
                         @endforeach
                       </select>
                     </div>
@@ -336,7 +336,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <input type="text" name="name" id="editName" class="form-control mb-3" placeholder="Item Name" required>
+            <input type="hidden" name="name" id="editName" class="form-control mb-3" placeholder="Item Name" required>
             <input type="number" name="price" id="editPrice" class="form-control" placeholder="Price" step="0.01" required>
           </div>
           <div class="modal-footer">
@@ -358,7 +358,7 @@
         editButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const id = button.dataset.id;
-                const name = button.dataset.name;
+                const name = button.dataset.id;
                 const price = button.dataset.price;
 
                 document.getElementById('editName').value = name;
