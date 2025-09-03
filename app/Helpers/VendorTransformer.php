@@ -41,7 +41,7 @@ class VendorTransformer
                 'name'        => $laundry->name,
                 'address'     => $laundry->address,
                 'description' => $laundry->description,
-                'image'       => 'https://yourerrandsguy.com.ng'.$laundry->image,
+                'image'       => 'https://yourerrandsguy.com.ng/'.$laundry->image,
                 'tag'         => $laundry->tag,
                 'deliveryfee' => $laundry->deliveryfee,
                 'items'       => $laundry->vitems->map(function ($item) {
@@ -53,7 +53,7 @@ class VendorTransformer
                             'iron'   => (float) $item->iron,
                             'starch' => (float) $item->starch,
                         ],
-                        'image'      => 'https://yourerrandsguy.com.ng'.$item->item->image ?? null,
+                        'image'      => 'https://yourerrandsguy.com.ng/'.$item->item->image ?? null,
                         'created_at' => $item->created_at,
                         'updated_at' => $item->updated_at,
                     ];
@@ -72,7 +72,7 @@ class VendorTransformer
             'name'        => $vendor->name,
             'address'     => $vendor->address,
             'description' => $vendor->description,
-            'image'       => 'https://yourerrandsguy.com.ng'.$vendor->image ?? optional($vendor->vendorItems->first()->item)->image,
+            'image'       => 'https://yourerrandsguy.com.ng/'.$vendor->image ?? optional($vendor->vendorItems->first()->item)->image,
             'tag'         => $vendor->tag,
             'deliveryfee' => $vendor->deliveryfee,
             'items'       => $vendor->service_type === 'Laundry'
@@ -85,7 +85,7 @@ class VendorTransformer
                             'iron'   => (float) $item->iron,
                             'starch' => (float) $item->starch,
                         ],
-                        'image'      => 'https://yourerrandsguy.com.ng'.$item->item->image ?? null,
+                        'image'      => 'https://yourerrandsguy.com.ng/'.$item->item->image ?? null,
                         'created_at' => $item->created_at,
                         'updated_at' => $item->updated_at,
                     ];
@@ -98,7 +98,7 @@ class VendorTransformer
                         'price'       => $vendorItem->price ?? null,
                         'description' => $vendorItem->description ?? null,
                         'tag'         => $vendorItem->tag ?? null,
-                        'image'       => 'https://yourerrandsguy.com.ng'.$vendorItem->item->image ?? null,
+                        'image'       => 'https://yourerrandsguy.com.ng/'.$vendorItem->item->image ?? null,
                         'created_at'  => $vendorItem->created_at ?? null,
                         'updated_at'  => $vendorItem->updated_at ?? null,
                     ];
