@@ -45,4 +45,16 @@ class Vendor extends Authenticatable
         return $this->hasMany(VendorItem::class, 'vendor_id');
     }
 
+    public function item()
+    {
+        return $this->hasOneThrough(
+            Items::class,
+            VendorItem::class,
+            'vendor_id',   // Foreign key on vendor_items table
+            'id',          // Foreign key on items table
+            'id',          // Local key on vendors table
+            'items_id'     // Local key on vendor_items table
+        );
+    }
+
 }
