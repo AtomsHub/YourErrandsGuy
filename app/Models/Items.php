@@ -17,4 +17,6 @@ class Items extends Model
     {
         return $this->hasMany(VendorItem::class, 'items_id');
     }
+
+    
 }

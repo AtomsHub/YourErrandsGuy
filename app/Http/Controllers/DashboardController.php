@@ -6,6 +6,7 @@ use App\Custom\ApiResponse;
 use App\Models\Vendor;
 use App\Models\item;
 use Illuminate\Http\Request;
+use App\Helpers\VendorTransformer;
 
 class DashboardController extends Controller
 {
@@ -24,69 +25,29 @@ class DashboardController extends Controller
             $vendor->vitems->each->makeHidden(['wash', 'starch', 'iron']);
         });
 
+
         return ApiResponse::success([
+            
             'user' => [
-                'id' => $user->id,
+                'id'       => $user->id,
                 'fullname' => $user->fullname,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'dob' => $user->dob,
+                'email'    => $user->email,
+                'phone'    => $user->phone,
+                'dob'      => $user->dob,
+                'address'  => $user->address ?? null,
             ],
-            'popular' => $popular->map(function ($popular) {
-                return [
-                    'id' => $popular->id,
-                    'name' => $popular->name,
-                    'address' => $popular->address,
-                    'description' => $popular->description,
-                    'image' => $popular->item->image ?? null,
-                    'tag' => $popular->tag,
-                    'deliveryfee' => $popular->deliveryfee,
-                    'items' => $popular->vitems, // Include vitems if necessary
-                ];
-            }),
-            'vendors' => $vendors->map(function ($vendor) {
-                return [
-                    'id' => $vendor->id,
-                    'name' => $vendor->name,
-                    'address' => $vendor->address,
-                    'description' => $vendor->description,
-                    'image' => $vendor->item->image ?? null,
-                    'tag' => $vendor->tag,
-                    'deliveryfee' => $vendor->deliveryfee,
-                    'items' => $vendor->vitems, // Include vitems if necessary
-                ];
-            }),
-            'laundries' => $laundries->map(function ($laundry) {
-                return [
-                    'id' => $laundry->id,
-                    'name' => $laundry->name,
-                    'address' => $laundry->address,
-                    'description' => $laundry->description,
-                    'image' => $laundry->item->image ?? null, // Ensure correct image path
-                    'tag' => $laundry->tag,
-                    'deliveryfee' => $laundry->deliveryfee, // Convert to float
-                    'items' => $laundry->vitems->map(function ($item) {
-                        return [
-                            'id' => $item->id,
-                            'name' => $item->name,
-                            'price' => [
-                                'wash' => (float) $item->wash,  // Convert wash to float
-                                'iron' => (float) $item->iron,  // Convert iron to float
-                                'starch' => (float) $item->starch,  // Convert starch to float
-                            ],
-                            'image' => $item->image,
-                            'created_at' => $item->created_at,
-                            'updated_at' => $item->updated_at,
-                        ];
-                    })
-                ];
-           }),
-            
-            
-            
-            
-            'message' => 'Welcome to your dashboard!',
-        ]);
+            'popular'   => VendorTransformer::transformPopular($popular),
+            'vendors'   => VendorTransformer::transformVendors($vendors),
+            'laundries' => VendorTransformer::transformLaundries($laundries),
+        ], 'Welcome to your dashboard!');
+
+
+        
+
+
+        
+
+       
     }
 }
 
