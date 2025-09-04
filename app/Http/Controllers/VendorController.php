@@ -63,7 +63,7 @@ class VendorController extends Controller
     public function show($id)
     {
         $vendor = Vendor::findOrFail($id);
-        $items = $vendor->items->unique('name');
+        $items = $vendor->vitems->unique('name');
         $newitems = Items::all()->unique('name')->sortBy('id');
 
         return view('admin.restaurants.restaurant', [
