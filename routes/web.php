@@ -85,4 +85,21 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
         Route::put('/{id}', 'update')->name('admin.dispatchers.update');
         Route::delete('/{id}', 'destroy')->name('admin.dispatchers.destroy');
     });
+
+
+    Route::prefix('delivery-fees')->group(function () {
+        Route::get('/', [DeliveryFeeController::class, 'indexDeliveryFees']);
+        Route::post('/', [DeliveryFeeController::class, 'storeDeliveryFee']);
+        Route::get('/{id}', [DeliveryFeeController::class, 'showDeliveryFee']);
+        Route::put('/{id}', [DeliveryFeeController::class, 'updateDeliveryFee']);
+        Route::delete('/{id}', [DeliveryFeeController::class, 'destroyDeliveryFee']);
+    });
+
+    Route::prefix('errand-fees')->group(function () {
+        Route::get('/', [DeliveryFeeController::class, 'indexErrandFees']);
+        Route::post('/', [DeliveryFeeController::class, 'storeErrandFee']);
+        Route::get('/{id}', [DeliveryFeeController::class, 'showErrandFee']);
+        Route::put('/{id}', [DeliveryFeeController::class, 'updateErrandFee']);
+        Route::delete('/{id}', [DeliveryFeeController::class, 'destroyErrandFee']);
+    });
 });

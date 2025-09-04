@@ -159,7 +159,7 @@ class DispatcherController extends Controller
             'password' => $hashedPassword,
         ]);
 
-          Mail::send('emails.dispatcher', ['password' =>$hashedPassword, 'full_name'=> $validated['full_name']],
+          Mail::send('emails.dispatcher', ['password' =>$password, 'full_name'=> $validated['full_name']],
          function ($message) use ($validated) {
             $message->to($validated['email']);
             $message->subject('Password Auto Generated');

@@ -24,11 +24,6 @@ class DeliveryController extends Controller
             ->pluck('dropoff');
             
             
-        //  $dropoffs = DB::table('errands_package_delivery_fees')
-        //     ->where('pickup', $pickup)
-        //     ->orWhere('dropoff', $pickup)
-        //     ->pluck('dropoff');
-            
         if ($dropoffs->isEmpty()) {
             return ApiResponse::notFound('No dropoff locations found for the selected pickup');
         }
