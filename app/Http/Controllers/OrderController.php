@@ -1,16 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Log;
 use App\Custom\ApiResponse;
-use App\Models\Order;
 use App\Models\Dispatcher;
+use App\Models\Order;
+use App\Models\User;
+use App\Models\Vendor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use App\Models\User;
-use App\Models\Vendor;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -125,6 +126,77 @@ class OrderController extends Controller
     }
 
 
+    public function webhookupdateOrder(Request $request)
+    {
+        // Verify Paystack signature
+        $signature = $request->header('x-paystack-signature');
+        if (!$signature || $signature !== hash_hmac('sha512', $request->getContent(), env('PAYSTACK_SECRET_KEY'))) {
+            return response()->json(['error' => 'Invalid signature'], 401);
+        }
+
+        $payload = $request->all();
+
+        // Always log webhook events for debugging
+        Log::channel('paystack')->info('Paystack Webhook Event', $payload);
+
+        if (!isset($payload['event'])) {
+            return response()->json(['message' => 'No event found'], 400);
+        }
+
+        $event = $payload['event'];
+        $data  = $payload['data'] ?? [];
+
+        switch ($event) {
+            case 'charge.success':
+                $this->updateOrderStatus($data, 'Processing');
+                return response()->json(['message' => 'Charge success processed'], 200);
+
+            case 'charge.failed':
+                $this->updateOrderStatus($data, 'Failed');
+                return response()->json(['message' => 'Charge failed processed'], 200);
+
+            case 'transfer.success':
+                $this->updateOrderStatus($data, 'Processing');
+                return response()->json(['message' => 'Transfer success processed'], 200);
+
+            case 'transfer.failed':
+                $this->updateOrderStatus($data, 'Failed');
+                return response()->json(['message' => 'Transfer failed processed'], 200);
+
+            case 'transfer.reversed':
+                $this->updateOrderStatus($data, 'Reversed');
+                return response()->json(['message' => 'Transfer reversed processed'], 200);
+
+            default:
+                // For subscription, invoice, etc.
+                return response()->json(['message' => 'Event logged: '.$event], 200);
+        }
+    }
+
+    /**
+     * Update order status helper
+     */
+    protected function updateOrderStatus(array $data, string $status)
+    {
+        $reference = $data['reference'] ?? null;
+        $transId   = $data['id'] ?? null;
+
+        if (!$reference) {
+            Log::channel('paystack')->warning('Missing reference in webhook payload', $data);
+            return;
+        }
+
+        DB::table('orders')
+            ->where('tx_ref', $reference)
+            ->update([
+                'trans_id'   => $transId,
+                'status'     => $status,
+                'updated_at' => now(),
+            ]);
+    }
+
+
+
     public function index()
     {
 
@@ -156,6 +228,9 @@ class OrderController extends Controller
         $order = Order::find($request->order_id);
         $user = User::findOrFail($order->user_id);
         $order->dispatcher_id = $request->dispatcher_id;
+
+        $order->assigned_at = Carbon::now();
+        
         $order->status = 'Rider Dispatched';
         $order->save();
 
