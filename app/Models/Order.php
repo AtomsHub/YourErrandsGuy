@@ -23,7 +23,7 @@ class Order extends Model
 
     public function dispatcher()
     {
-        return $this->belongsTo(Dispatcher::class);
+        return $this->belongsTo(Dispatcher::class,'dispatch_id');
     }
 
 

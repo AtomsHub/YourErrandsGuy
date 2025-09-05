@@ -20,7 +20,7 @@ class IsDispatcher
         }
 
         // Check if user exists in the dispatchers table
-        $isDispatcher = Dispatcher::where('user_id', $user->id)->exists();
+        $isDispatcher = Dispatcher::where('id', $user->id)->exists();
 
         if (!$isDispatcher) {
             return response()->json([
