@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Custom\ApiResponse;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class DispatcherController extends Controller
 {
@@ -40,7 +41,7 @@ class DispatcherController extends Controller
             return ApiResponse::failed('Dispatcher is yet to be verified.', null, 403);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('dispatcher_auth_token')->plainTextToken;
 
       
 
@@ -61,20 +62,61 @@ class DispatcherController extends Controller
                 'bank_account_name' => $user->bank_account_name,
                 'bank_account_number' => $user->bank_account_number,
                 'bank_name' => $user->bank_name,
-            ],
-           
-            'vendors' => $vendors->map(function ($vendor) {
-                return [
-                    'id' => $vendor->id,
-                    'name' => $vendor->name,
-                    'address' => $vendor->address,
-                    'description' => $vendor->description,
-                    'image' => $vendor->image,
-                    'tag' => $vendor->tag,
-                    'deliveryfee' => $vendor->deliveryfee,
-                    'items' => $vendor->items, // Include items if necessary
-                ];
-            }),
+                 'walletBalance' => $user->walletBalance,
+            ]
+        ], 'Login successfully.');
+    }
+
+
+    public function dashboard(Request $request)
+    {
+        $user = $request->user();
+        $vendor = Dispatcher::where('id', $user->id)->first();
+
+
+          return ApiResponse::success([
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->full_name,
+                'phone_number' => $user->phone_number,
+                'email' => $user->email,
+                'home_address' => $user->home_address,
+                'date_of_birth' => $user->date_of_birth,
+                'national_id_number' => $user->national_id_number,
+                'driver_license_number' => $user->driver_license_number,
+                'id_document_path' => $user->id_document_path,
+                'motorbike_license_plate_number' => $user->motorbike_license_plate_number,
+                'bank_account_name' => $user->bank_account_name,
+                'bank_account_number' => $user->bank_account_number,
+                'bank_name' => $user->bank_name,
+                 'walletBalance' => $user->walletBalance,
+            ]
+        ], 'Login successfully.');
+    }
+
+    public function orders(Request $request)
+    {
+        $user = $request->user();
+        $vendor = Dispatcher::where('id', $user->id)->first();
+
+
+          return ApiResponse::success([
+            'user' => [
+                'id' => $user->id,
+                'full_name' => $user->full_name,
+                'phone_number' => $user->phone_number,
+                'email' => $user->email,
+                'home_address' => $user->home_address,
+                'date_of_birth' => $user->date_of_birth,
+                'national_id_number' => $user->national_id_number,
+                'driver_license_number' => $user->driver_license_number,
+                'id_document_path' => $user->id_document_path,
+                'motorbike_license_plate_number' => $user->motorbike_license_plate_number,
+                'bank_account_name' => $user->bank_account_name,
+                'bank_account_number' => $user->bank_account_number,
+                'bank_name' => $user->bank_name,
+                 'walletBalance' => $user->walletBalance,
+            ]
         ], 'Login successfully.');
     }
 
@@ -271,7 +313,7 @@ class DispatcherController extends Controller
         }
 
         // Retrieve the user by email and reset code
-        $user = User::where('email', $request->email)
+        $user = Dispatcher::where('email', $request->email)
             ->where('password_reset_code', $request->password_reset_code)
             ->first();
 
