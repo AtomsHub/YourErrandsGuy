@@ -51,13 +51,17 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     
 });
 
-Route::post('dispatch-login', [DispatcherController::class, 'login']);
-Route::post('dispatch-change-password', [DispatcherController::class, 'changePassword']);
+Route::prefix('dispatch')->name('dispatch.')->group(function () {
 
-Route::middleware(['auth:sanctum', 'verified', 'is.dispatcher'])->group(function () {
-    Route::get('dispatcher/dashboard', [DispatcherController::class, 'index']);
-    Route::get('dispatcher/orders', [DispatcherController::class, 'getAllOrders']);
-    Route::post('dispatcher/order-complete', [DispatcherController::class, 'completeByTransactionId']);
+    Route::post('login', [DispatcherController::class, 'login']);
+    Route::post('password', [DispatcherController::class, 'changePassword']);
+
+    Route::middleware(['auth:sanctum', 'verified', 'is.dispatcher'])->group(function () {
+        Route::get('/dashboard', [DispatcherController::class, 'index']);
+        Route::get('/orders', [DispatcherController::class, 'orders']);
+        Route::post('/order-complete', [DispatcherController::class, 'completeByTransactionId']);
+
+    });
 
 });
 

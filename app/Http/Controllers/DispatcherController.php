@@ -37,11 +37,13 @@ class DispatcherController extends Controller
             return ApiResponse::failed('Invalid credentials.', null, 401);
         }
 
+      
+
         if (!$user->status != "approved") {
             return ApiResponse::failed('Dispatcher is yet to be verified.', null, 403);
         }
 
-        $token = $user->createToken('dispatcher_auth_token')->plainTextToken;
+        $token = $user->createToken('dispatch_auth_token')->plainTextToken;
 
       
 
@@ -95,30 +97,89 @@ class DispatcherController extends Controller
     }
 
     public function orders(Request $request)
-    {
-        $user = $request->user();
-        $vendor = Dispatcher::where('id', $user->id)->first();
+{
+    $user = $request->user();
+
+    // Fetch all orders for the authenticated user
+    $orders = Order::with(['vendor', 'dispatcher', 'cartItems','customer'])
+        ->where('dispatch_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return ApiResponse::success([
+        'orders' => $orders->map(function ($order) {
+            return [
+                'id' => $order->id,
+                'service_type' => $order->service_type,
+                'item_amount' => $order->item_amount,
+                'delivery_fee' => $order->delivery_fee,
+                'delivery_landmark' => $order->delivery_landmark,
+                'total_amount' => $order->total_amount,
+                'transaction_id' => $order->trans_id,
+                'form_details' => json_decode($order->form_details, true),
+                'items' => json_decode($order->items, true),
+                'status' => $order->status,
+                'created_at' => $order->created_at->toDateTimeString(),
+
+                // Vendor details
+                'vendor' => $order->vendor ? [
+                    'id' => $order->vendor->id,
+                    'name' => $order->vendor->name,
+                    'address' => $order->vendor->address,
+                    'service_type' => $order->vendor->service_type,
+                ] : null,
+
+                // Dispatcher details
+                'dispatcher' => $order->dispatcher ? [
+                    'id' => $order->dispatcher->id,
+                    'full_name' => $order->dispatcher->full_name,
+                    'phone_number' => $order->dispatcher->phone_number,
+                ] : null,
+
+                // Cart items details
+                'cart_items' => $order->cartItems->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'items_id' => $item->items_id,
+                        'description' => $item->description,
+                        'quantity' => $item->quantity,
+                        'rate' => $item->rate,
+                        'price_per_item' => $item->pricePerItem,
+                        'service_name' => $item->serviceName,
+                    ];
+                }),
+            ];
+        })
+    ], 'Orders fetched successfully.');
+}
 
 
-          return ApiResponse::success([
-            'user' => [
-                'id' => $user->id,
-                'full_name' => $user->full_name,
-                'phone_number' => $user->phone_number,
-                'email' => $user->email,
-                'home_address' => $user->home_address,
-                'date_of_birth' => $user->date_of_birth,
-                'national_id_number' => $user->national_id_number,
-                'driver_license_number' => $user->driver_license_number,
-                'id_document_path' => $user->id_document_path,
-                'motorbike_license_plate_number' => $user->motorbike_license_plate_number,
-                'bank_account_name' => $user->bank_account_name,
-                'bank_account_number' => $user->bank_account_number,
-                'bank_name' => $user->bank_name,
-                 'walletBalance' => $user->walletBalance,
-            ]
-        ], 'Login successfully.');
-    }
+
+    // public function orders(Request $request)
+    // {
+    //     $user = $request->user();
+    //     $vendor = Order::with(['customer','vendor','dispatcher','cartItems'])->where('id', $user->id)->first();
+
+
+    //       return ApiResponse::success([
+    //         'user' => [
+    //             'id' => $user->id,
+    //             'full_name' => $user->full_name,
+    //             'phone_number' => $user->phone_number,
+    //             'email' => $user->email,
+    //             'home_address' => $user->home_address,
+    //             'date_of_birth' => $user->date_of_birth,
+    //             'national_id_number' => $user->national_id_number,
+    //             'driver_license_number' => $user->driver_license_number,
+    //             'id_document_path' => $user->id_document_path,
+    //             'motorbike_license_plate_number' => $user->motorbike_license_plate_number,
+    //             'bank_account_name' => $user->bank_account_name,
+    //             'bank_account_number' => $user->bank_account_number,
+    //             'bank_name' => $user->bank_name,
+    //              'walletBalance' => $user->walletBalance,
+    //         ]
+    //     ], 'Login successfully.');
+    // }
 
     public function store(Request $request)
     {
