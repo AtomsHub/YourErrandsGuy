@@ -44,6 +44,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index']);
     Route::post('orders/save', [OrderController::class, 'saveOrders']);
     Route::get('/orders', [OrderController::class, 'getUserOrders']);
+    Route::post('/protection-fee', [OrderController::class, 'getProtectionFee']);
     Route::post('updateOrder', [OrderController::class, 'updateOrder']);
     Route::get('/pickup-locations', [DeliveryController::class, 'getPickupLocations']);
     Route::get('/dropoff-locations/{pickup}', [DeliveryController::class, 'getDropoffLocations']);
