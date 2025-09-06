@@ -86,10 +86,9 @@ class AuthController extends Controller
                         ->where('service_type', 'Laundry')->get();
 
 
-        $userOrders = Order::where('user_id', $user->id);
+        $userOrders = Order::selectRaw('COUNT(*) as totalOrderCount, COALESCE(SUM(total_amount), 0) as totalAmountSpent')->where('user_id', $user->id)->first();
 
-        $totalOrderCount = $userOrders->count();
-        $totalAmountSpent = $userOrders->sum('total_amount');
+
 
         
 
@@ -102,8 +101,8 @@ class AuthController extends Controller
                 'phone'    => $user->phone,
                 'dob'      => $user->dob,
                 'address'  => $user->address ?? null,
-                'totalOrderCount' => $totalOrderCount ?? 0,
-               'totalAmountSpent' => $totalAmountSpent ?? 0.00,
+                'totalOrderCount' => $userOrders->totalOrderCount ?? 0,
+               'totalAmountSpent' => $userOrders->totalAmountSpent ?? 0.00,
             ],
             'popular'   => VendorTransformer::transformPopular($popular),
             'vendors'   => VendorTransformer::transformVendors($vendors),
@@ -143,10 +142,10 @@ class AuthController extends Controller
         $vendors   = Vendor::with(['vendorItems.item', 'deliveryfee', 'vitems.item'])->where('service_type', 'Restaurant')->get();
         $laundries = Vendor::with(['vendorItems.item', 'deliveryfee', 'vitems.item'])->where('service_type', 'Laundry')->get();
 
-        $userOrders = Order::where('user_id', $user->id);
+        $userOrders = Order::selectRaw('COUNT(*) as totalOrderCount, COALESCE(SUM(total_amount), 0) as totalAmountSpent')->where('user_id', $user->id)->first();
 
-        $totalOrderCount = $userOrders->count();
-        $totalAmountSpent = $userOrders->sum('total_amount');
+
+       
         return ApiResponse::success([
             'token' => $token ?? null,
             'user' => [
@@ -156,8 +155,8 @@ class AuthController extends Controller
                 'phone'    => $user->phone,
                 'dob'      => $user->dob,
                 'address'  => $user->address ?? null,
-                'totalOrderCount' => $totalOrderCount ?? 0,
-               'totalAmountSpent' => $totalAmountSpent ?? 0.00,
+                'totalOrderCount' => $userOrders->totalOrderCount ?? 0,
+               'totalAmountSpent' => $userOrders->totalAmountSpent ?? 0.00,
             ],
             'popular'   => VendorTransformer::transformPopular($popular),
             'vendors'   => VendorTransformer::transformVendors($vendors),

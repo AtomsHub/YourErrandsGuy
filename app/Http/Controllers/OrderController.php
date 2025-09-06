@@ -19,47 +19,132 @@ class OrderController extends Controller
 {
     //
 
+    public function getProtectionFee(Request $request)
+    {
+      
+
+        $validator = Validator::make($request->all(), [
+             'amount' => 'required|numeric|min:0'
+        ]);
+
+        if ($validator->fails()) {
+            return ApiResponse::validationFailed($validator->errors());
+        }
+
+        $amount = $request->input('amount');
+        $protectionFee = $amount * 0.2; // 50% of amount
+
+        return ApiResponse::success([
+            'amount' => $amount,
+            'protection_fee' => $protectionFee
+        ], 'Protection fee calculated successfully');
+    }
+
     public function saveOrders(Request $request)
     {
-        $userId = auth()->id(); // Logged-in user ID
+        $userId = auth()->id();
         $cartItems = $request->input('cartItems');
         $transaction_id = $request->input('transaction_id');
-       
+         $amount_worth = $request->input('amount_worth') ?? 0.00 ;
+          $protection_fee = $request->input('protection_fee') ?? 0.00 ;
+
         foreach ($cartItems as $cartItem) {
-            // Insert into orders table
-            $orderId = DB::table('orders')->insertGetId([
-                'user_id' => $userId,
-                'vendor_id' => $cartItem['services'] === 'Restaurant' ? $cartItem['restaurant_id'] : ($cartItem['services'] === 'Laundry' ? $cartItem['laundry_id'] : null),
-                'service_type' => $cartItem['services'],
-                'item_amount' => $cartItem['itemAmount'],
-                'delivery_fee' => isset($cartItem['deliveryFee']['price']) ? $cartItem['deliveryFee']['price'] : 0,
-                'delivery_landmark' => isset($cartItem['deliveryFee']['landmark']) ? $cartItem['deliveryFee']['landmark'] : null,
-                'total_amount' => $cartItem['totalAmount'],
-                'trans_id' => $transaction_id,
-                'form_details' => json_encode($cartItem['formDetails']),
-                 'items' => json_encode($cartItem['items']),
-                'status' => 'Make Payment',
-               
-                'created_at' => Carbon::now(),
-            ]);
+            $vendorId = null;
+            $deliveryLandmark = null;
+            $pickupLandmark = null;
 
-            // Insert into cart_items table
-            foreach ($cartItem['items'] as $item) {
-                DB::table('cart_items')->insert([
-                    'order_id' => $orderId,
-                    'items_id'=>$item['item_id'] ?? null,
-                    'description' => $item['description'] ?? $item['name'] ?? $item,
-                    'quantity' => $item['quantity'] ?? 1,
-                    'rate' => $item['rate'] ?? $item['price'] ?? null,
-                    'pricePerItem' => $item['pricePerItem'] ?? 0.00,
-                    'serviceName' => $item['serviceName'] ?? null,
+            if ($cartItem['services'] === 'Restaurant') {
+                $vendorId = $cartItem['restaurant_id'] ?? null;
+                $deliveryLandmark = isset($cartItem['deliveryFee']['landmark']) ? $cartItem['deliveryFee']['landmark'] : null;
+            } elseif ($cartItem['services'] === 'Laundry') {
+                $vendorId = $cartItem['laundry_id'] ?? null;
+                $deliveryLandmark = isset($cartItem['deliveryFee']['landmark']) ? $cartItem['deliveryFee']['landmark'] : null;
+            } elseif ($cartItem['services'] === 'Package') {
+                $deliveryLandmark = $cartItem['formDetails']['selectedDropOffArea']['title'] ?? null;
+                $pickupLandmark   = $cartItem['formDetails']['selectedErrandArea']['title'] ?? null;
+            }
 
+            // ✅ Check if order with this transaction_id already exists
+            $existingOrder = DB::table('orders')->where('trans_id', $transaction_id)->first();
+
+            if ($existingOrder) {
+                // Update existing order
+                DB::table('orders')
+                    ->where('id', $existingOrder->id)
+                    ->update([
+                        'user_id'           => $userId,
+                        'vendor_id'         => $vendorId,
+                        'service_type'      => $cartItem['services'],
+                        'item_amount'       => $cartItem['itemAmount'],
+                        'amount_worth'       => $amount_worth,
+                        'protection_fee'       => $protection_fee,
+                        'delivery_fee'      => is_array($cartItem['deliveryFee']) ? $cartItem['deliveryFee']['price'] : $cartItem['deliveryFee'],
+                        'delivery_landmark' => $deliveryLandmark,
+                        'pickup_landmark'   => $pickupLandmark,
+                        'total_amount'      => $cartItem['totalAmount'],
+                        'form_details'      => json_encode($cartItem['formDetails']),
+                        'items'             => json_encode($cartItem['items']),
+                        'status'            => 'Make Payment',
+                        'updated_at'        => Carbon::now(),
+                    ]);
+
+                $orderId = $existingOrder->id;
+
+                // Remove old cart_items and reinsert
+                DB::table('cart_items')->where('order_id', $orderId)->delete();
+
+            } else {
+                // Create new order
+                $orderId = DB::table('orders')->insertGetId([
+                    'user_id'           => $userId,
+                    'vendor_id'         => $vendorId,
+                    'service_type'      => $cartItem['services'],
+                    'item_amount'       => $cartItem['itemAmount'],
+                    'amount_worth'       => $amount_worth,
+                    'protection_fee'       => $protection_fee,
+                    'delivery_fee'      => is_array($cartItem['deliveryFee']) ? $cartItem['deliveryFee']['price'] : $cartItem['deliveryFee'],
+                    'delivery_landmark' => $deliveryLandmark,
+                    'pickup_landmark'   => $pickupLandmark,
+                    'total_amount'      => $cartItem['totalAmount'],
+                    'trans_id'          => $transaction_id,
+                    'form_details'      => json_encode($cartItem['formDetails']),
+                    'items'             => json_encode($cartItem['items']),
+                    'status'            => 'Make Payment',
+                    'created_at'        => Carbon::now(),
                 ]);
+            }
+
+            // Insert cart_items (fresh data)
+            foreach ($cartItem['items'] as $item) {
+                if (is_array($item)) {
+                    DB::table('cart_items')->insert([
+                        'order_id'     => $orderId,
+                        'items_id'     => $item['item_id'] ?? null,
+                        'description'  => $item['description'] ?? $item['name'] ?? null,
+                        'quantity'     => $item['quantity'] ?? 1,
+                        'rate'         => $item['rate'] ?? $item['price'] ?? null,
+                        'pricePerItem' => $item['pricePerItem'] ?? 0.00,
+                        'serviceName'  => $item['serviceName'] ?? null,
+                    ]);
+                } else {
+                    DB::table('cart_items')->insert([
+                        'order_id'     => $orderId,
+                        'items_id'     => null,
+                        'description'  => $item,
+                        'quantity'     => 1,
+                        'rate'         => null,
+                        'pricePerItem' => 0.00,
+                        'serviceName'  => 'Package',
+                    ]);
+                }
             }
         }
 
         return response()->json(['message' => 'Orders saved successfully!']);
     }
+
+
+
 
     public function getUserOrders(Request $request)
     {
@@ -67,8 +152,8 @@ class OrderController extends Controller
         
 
         // Fetch orders with restaurant name when restaurant_id is present
-        $orders = $user->orders()->select('id', 'service_type', 'item_amount', 'delivery_fee','delivery_landmark', 'total_amount', 'status', 'vendor_id', 'created_at')
-            ->with(['vendor:id,name']) // Load the vendor's name
+        $orders = $user->orders()->select('id', 'service_type', 'amount_worth','protection_fee','item_amount', 'delivery_fee','delivery_landmark','pickup_landmark', 'total_amount', 'status', 'vendor_id', 'created_at')
+            ->with(['vendor:id,name', 'cartItems'])  // Load the vendor's name
             ->get()
             ->map(function ($order) {
                 $order->vendor_name = $order->vendor_name ? $order->vendor->name : null;
@@ -176,24 +261,43 @@ class OrderController extends Controller
     /**
      * Update order status helper
      */
+
     protected function updateOrderStatus(array $data, string $status)
     {
-        $reference = $data['reference'] ?? null;
-        $transId   = $data['id'] ?? null;
+        $reference = $data['reference'] ?? null; // Paystack transaction reference
+        $transId   = $data['id'] ?? null;        // Paystack transaction ID
 
         if (!$reference) {
             Log::channel('paystack')->warning('Missing reference in webhook payload', $data);
             return;
         }
 
-        DB::table('orders')
+        // Update the order status
+        $order = DB::table('orders')
             ->where('tx_ref', $reference)
             ->update([
-                'trans_id'   => $transId,
-                'status'     => $status,
+                'trans_id' => $transId,
+                'status'   => $status,
                 'updated_at' => now(),
             ]);
+
+        // If it's a successful charge, update vendor balance
+        if ($status === 'Processing') {
+            $order = DB::table('orders')
+                ->where('tx_ref', $reference)
+                ->first();
+
+            if ($order) {
+                // Assuming you store order amount in `final_amount`
+                $itemAmount = $order->final_amount;
+
+                DB::table('vendors')
+                    ->where('id', $order->vendor_id)
+                    ->increment('balance', $itemAmount);
+            }
+        }
     }
+
 
 
 
