@@ -27,7 +27,7 @@
                 <div class="progress-circle"></div>
                 <div class="progress-line"></div>
                 <h5>Order Created</h5>
-                <p>{{ $order->created_at->format('D, d M Y g:i A') }}</p>
+                <p>{{ $order->created_at->format('D, d M Y g:i A') ?? null }}</p>
             </div>
 
             <!-- Payment Successful -->
@@ -35,7 +35,7 @@
                 <div class="progress-circle"></div>
                 <div class="progress-line"></div>
                 <h5>Vendor Processing</h5>
-                <p>{{ $order->created_at->format('D, d M Y g:i A') }}</p>
+                <p>{{ $order->updated_at->format('D, d M Y g:i A') ?? null }}</p>
             </div>
 
             <!-- Rider Dispatched -->
@@ -43,14 +43,14 @@
                 <div class="progress-circle"></div>
                 <div class="progress-line"></div>
                 <h5>Rider Dispatched</h5>
-                <p>{{ $order->updated_at->format('D, d M Y g:i A') }}</p>
+                <p>{{ $order->assigned_at->format('D, d M Y g:i A') ?? null }}</p>
             </div>
 
             <!-- Delivered -->
             <div class="progress-step {{ $stepStatus['delivered'] ? 'completed' : '' }}">
                 <div class="progress-circle"></div>
                 <h5>Order Delivered</h5>
-                <p>{{ $order->updated_at->format('D, d M Y g:i A') }}</p>
+                <p>{{ $order->completed_at->format('D, d M Y g:i A')  ?? null }}</p>
             </div>
         </div>
 

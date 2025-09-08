@@ -45,8 +45,12 @@ class OrderController extends Controller
         $userId = auth()->id();
         $cartItems = $request->input('cartItems');
         $transaction_id = $request->input('transaction_id');
-         $amount_worth = $request->input('amount_worth') ?? 0.00 ;
-          $protection_fee = $request->input('protection_fee') ?? 0.00 ;
+        // $amount_worth = $request->input('amount_worth') ?? 0.00 ;
+        // $protection_fee = $request->input('protection_fee') ?? 0.00 ;
+
+        $packageWorth   = $data['formDetails']['packageWorth'] ?? ($data['items'][0]['packageWorth'] ?? 0);
+        $amount_worth    = $packageWorth;
+        $protection_fee  = $data['itemAmount'] ?? 0;
 
         foreach ($cartItems as $cartItem) {
             $vendorId = null;

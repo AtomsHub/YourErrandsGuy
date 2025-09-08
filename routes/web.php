@@ -4,11 +4,13 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DeliveryFeeController;
 use App\Http\Controllers\DispatcherController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\VendorController;
 use Illuminate\Support\Facades\Route;
+
 
 
 /*
@@ -26,9 +28,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
+Route::post('/paystack/webhook', [OrderController::class, 'webhookupdateOrder']);
+
 // Admin Login Routes
 Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
+
+
+
+Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+
 
 // Protect admin routes using 'admin' middleware
 Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
