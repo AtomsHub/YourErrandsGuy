@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Custom\ApiResponse;
-use App\Models\Vendor;
-use App\Models\item;
-use Illuminate\Http\Request;
 use App\Helpers\VendorTransformer;
+use App\Models\item;
+use App\Models\Order;
+use App\Models\Vendor;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -25,6 +26,8 @@ class DashboardController extends Controller
             $vendor->vitems->each->makeHidden(['wash', 'starch', 'iron']);
         });
 
+        $userOrders = Order::selectRaw('COUNT(*) as totalOrderCount, COALESCE(SUM(total_amount), 0) as totalAmountSpent')->where('user_id', $user->id)->first();
+          
 
         return ApiResponse::success([
             
@@ -35,6 +38,8 @@ class DashboardController extends Controller
                 'phone'    => $user->phone,
                 'dob'      => $user->dob,
                 'address'  => $user->address ?? null,
+                'totalOrderCount' => $userOrders->totalOrderCount ?? 0,
+               'totalAmountSpent' => $userOrders->totalAmountSpent ?? 0.00,
             ],
             'popular'   => VendorTransformer::transformPopular($popular),
             'vendors'   => VendorTransformer::transformVendors($vendors),
