@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Log;
 use App\Custom\ApiResponse;
 use App\Models\Dispatcher;
 use App\Models\Order;
@@ -11,6 +10,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
@@ -362,6 +363,77 @@ class OrderController extends Controller
 
         // return ApiResponse::success(null, 'Dispatcher details sent to user.');
         return redirect()->back()->with('success', 'Dispatcher assigned and eamil sent successfully!');
+    }
+
+
+
+
+    public function paystackCallback(Request $request)
+    {
+        $reference = $request->query('reference');
+        if (!$reference) {
+            return ApiResponse::notFound('Transaction reference missing.');
+        }
+
+        // Verify transaction with Paystack
+        $response = Http::withToken(env('PAYSTACK_SECRET_KEY'))
+            ->get("https://api.paystack.co/transaction/verify/{$reference}");
+
+        if (!$response->successful()) {
+            return ApiResponse::notFound('Unable to verify transaction.');
+        }
+
+        $data = $response->json('data');
+        if (!$data) {
+            return ApiResponse::notFound('No transaction data found.');
+        }
+
+        $status = $data['status']; // success | failed | abandoned
+        $mappedStatus = $status === 'success' ? 'Processing' : 'Failed';
+
+        // Reuse same method as webhook
+        $this->callbackupdateOrderStatus($data, $mappedStatus);
+
+        if ($mappedStatus === 'Processing') {
+            return ApiResponse::success(null, 'Order placed successfully!');
+        }
+
+        return ApiResponse::notFound('Transaction failed or order not found.');
+    }
+
+    protected function callbackupdateOrderStatus(array $data, string $status)
+    {
+        $reference = $data['reference'] ?? null;
+        $transId   = $data['id'] ?? null;
+
+        if (!$reference) {
+            Log::channel('paystack')->warning('Missing reference in callback payload', $data);
+            return;
+        }
+
+        // Update the order status
+        $order = DB::table('orders')
+            ->where('tx_ref', $reference)
+            ->update([
+                'trans_id'   => $transId,
+                'status'     => $status,
+                'updated_at' => now(),
+            ]);
+
+        // If successful, update vendor balance
+        if ($status === 'Processing') {
+            $order = DB::table('orders')
+                ->where('tx_ref', $reference)
+                ->first();
+
+            if ($order) {
+                $itemAmount = $order->final_amount;
+
+                DB::table('vendors')
+                    ->where('id', $order->vendor_id)
+                    ->increment('balance', $itemAmount);
+            }
+        }
     }
 
 
