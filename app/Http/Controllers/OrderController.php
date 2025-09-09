@@ -223,7 +223,7 @@ class OrderController extends Controller
 
         // 🔐 Verify Paystack signature
         $signature = $request->header('x-paystack-signature');
-        if (!$signature || $signature !== hash_hmac('sha512', $request->getContent(), config('services.paystack.secret'))) {
+        if (!$signature || $signature !== hash_hmac('sha512', $request->getContent(), env('PAYSTACK_SECRET_KEY'))) {
             Log::warning('Paystack webhook: Invalid signature', $request->all());
             return response()->json(['status' => 'error', 'message' => 'Invalid signature'], 401);
         }

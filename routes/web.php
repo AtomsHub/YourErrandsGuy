@@ -56,6 +56,11 @@ Route::middleware(['admin.auth'])->prefix('admin')->group(function () {
         Route::delete('/{id}', 'destroy')->name('admin.customers.destroy');
     });
 
+
+    // https://yourerrandsguy.com.ng/paystack/webhook
+
+    // https://www.payurdues.com.ng/paystack/webhook
+
     // Order Routes
     Route::controller(OrderController::class)->prefix('orders')->group(function () {
         Route::get('/', 'index')->name('admin.orders.index');
