@@ -29,13 +29,15 @@ Route::get('/', function () {
 });
 
 
-Route::post('/paystack/webhook', [OrderController::class, 'webhookupdateOrder']);
+Route::post('/paystack/webhook', [OrderController::class, 'handleWebhook']);
+
+// Route::post('/paystack/callback', [OrderController::class, 'paystackCallback']);
 
 // Admin Login Routes
 Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
 
-
+// https://yourerrandsguy.com.ng/paystack/callback
 
 Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
 

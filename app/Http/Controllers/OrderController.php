@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Log;
 use App\Custom\ApiResponse;
 use App\Models\Dispatcher;
 use App\Models\Order;
@@ -11,6 +10,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
@@ -215,92 +216,96 @@ class OrderController extends Controller
     }
 
 
-    public function webhookupdateOrder(Request $request)
+
+    public function handleWebhook(Request $request)
     {
-        // Verify Paystack signature
+        Log::info('Paystack webhook received', $request->all());
+
+        // 🔐 Verify Paystack signature
         $signature = $request->header('x-paystack-signature');
-        if (!$signature || $signature !== hash_hmac('sha512', $request->getContent(), env('PAYSTACK_SECRET_KEY'))) {
-            return response()->json(['error' => 'Invalid signature'], 401);
+        if (!$signature || $signature !== hash_hmac('sha512', $request->getContent(), config('services.paystack.secret'))) {
+            Log::warning('Paystack webhook: Invalid signature', $request->all());
+            return response()->json(['status' => 'error', 'message' => 'Invalid signature'], 401);
         }
 
-        $payload = $request->all();
-
-        // Always log webhook events for debugging
-        Log::channel('paystack')->info('Paystack Webhook Event', $payload);
-
-        if (!isset($payload['event'])) {
-            return response()->json(['message' => 'No event found'], 400);
-        }
-
-        $event = $payload['event'];
-        $data  = $payload['data'] ?? [];
+        $event = $request->input('event');
+        $data  = $request->input('data');
 
         switch ($event) {
             case 'charge.success':
                 $this->updateOrderStatus($data, 'Processing');
-                return response()->json(['message' => 'Charge success processed'], 200);
-
-            case 'charge.failed':
-                $this->updateOrderStatus($data, 'Failed');
-                return response()->json(['message' => 'Charge failed processed'], 200);
+                break;
 
             case 'transfer.success':
-                $this->updateOrderStatus($data, 'Processing');
-                return response()->json(['message' => 'Transfer success processed'], 200);
+                $this->updateOrderStatus($data, 'Transfer Successful');
+                break;
 
             case 'transfer.failed':
-                $this->updateOrderStatus($data, 'Failed');
-                return response()->json(['message' => 'Transfer failed processed'], 200);
-
-            case 'transfer.reversed':
-                $this->updateOrderStatus($data, 'Reversed');
-                return response()->json(['message' => 'Transfer reversed processed'], 200);
+                $this->updateOrderStatus($data, 'Transfer Failed');
+                break;
 
             default:
-                // For subscription, invoice, etc.
-                return response()->json(['message' => 'Event logged: '.$event], 200);
+                Log::info("Paystack webhook: Unhandled event {$event}", $data ?? []);
+                break;
         }
+
+        return response()->json(['status' => 'success'], 200);
     }
+
+    protected function updateOrderStatus(array $data, string $status)
+    {
+        // 🔑 Your own transaction ID from metadata
+        $localTransId = $data['metadata']['trans_id'] ?? null;
+
+        // Paystack transaction ID
+        $paystackId   = $data['reference'] ?? null;
+
+        if (!$localTransId) {
+            Log::warning('Paystack webhook: Missing trans_id in metadata', $data);
+            return;
+        }
+
+        // ✅ Update the order using your local trans_id
+        $updated = DB::table('orders')
+            ->where('trans_id', $localTransId)
+            ->update([
+                'tx_ref' => $paystackId, // store Paystack’s own id separately
+                'status'      => $status,
+                'updated_at'  => now(),
+            ]);
+
+        if (!$updated) {
+            Log::warning("Paystack webhook: Order with trans_id {$localTransId} not found", $data);
+            return;
+        }
+
+        // 💰 If it's a successful charge, update vendor balance
+        if ($status === 'Processing') {
+            $order = DB::table('orders')
+                ->where('trans_id', $localTransId)
+                ->first();
+
+            if ($order) {
+                $itemAmount = $order->item_amount; // adjust column name if different
+
+                DB::table('vendors')
+                    ->where('id', $order->vendor_id)
+                    ->increment('balance', $itemAmount);
+
+                Log::info("Paystack webhook: Vendor {$order->vendor_id} balance incremented by {$itemAmount}");
+            }
+        }
+
+        Log::info("Paystack webhook: Order {$localTransId} updated to {$status}");
+    }
+
+
 
     /**
      * Update order status helper
      */
 
-    protected function updateOrderStatus(array $data, string $status)
-    {
-        $reference = $data['reference'] ?? null; // Paystack transaction reference
-        $transId   = $data['id'] ?? null;        // Paystack transaction ID
-
-        if (!$reference) {
-            Log::channel('paystack')->warning('Missing reference in webhook payload', $data);
-            return;
-        }
-
-        // Update the order status
-        $order = DB::table('orders')
-            ->where('tx_ref', $reference)
-            ->update([
-                'trans_id' => $transId,
-                'status'   => $status,
-                'updated_at' => now(),
-            ]);
-
-        // If it's a successful charge, update vendor balance
-        if ($status === 'Processing') {
-            $order = DB::table('orders')
-                ->where('tx_ref', $reference)
-                ->first();
-
-            if ($order) {
-                // Assuming you store order amount in `final_amount`
-                $itemAmount = $order->final_amount;
-
-                DB::table('vendors')
-                    ->where('id', $order->vendor_id)
-                    ->increment('balance', $itemAmount);
-            }
-        }
-    }
+  
 
 
 
@@ -362,6 +367,77 @@ class OrderController extends Controller
 
         // return ApiResponse::success(null, 'Dispatcher details sent to user.');
         return redirect()->back()->with('success', 'Dispatcher assigned and eamil sent successfully!');
+    }
+
+
+
+
+    public function paystackCallback(Request $request)
+    {
+        $reference = $request->query('reference');
+        if (!$reference) {
+            return ApiResponse::notFound('Transaction reference missing.');
+        }
+
+        // Verify transaction with Paystack
+        $response = Http::withToken(env('PAYSTACK_SECRET_KEY'))
+            ->get("https://api.paystack.co/transaction/verify/{$reference}");
+
+        if (!$response->successful()) {
+            return ApiResponse::notFound('Unable to verify transaction.');
+        }
+
+        $data = $response->json('data');
+        if (!$data) {
+            return ApiResponse::notFound('No transaction data found.');
+        }
+
+        $status = $data['status']; // success | failed | abandoned
+        $mappedStatus = $status === 'success' ? 'Processing' : 'Failed';
+
+        // Reuse same method as webhook
+        $this->callbackupdateOrderStatus($data, $mappedStatus);
+
+        if ($mappedStatus === 'Processing') {
+            return ApiResponse::success(null, 'Order placed successfully!');
+        }
+
+        return ApiResponse::notFound('Transaction failed or order not found.');
+    }
+
+    protected function callbackupdateOrderStatus(array $data, string $status)
+    {
+        $reference = $data['reference'] ?? null;
+        $transId   = $data['id'] ?? null;
+
+        if (!$reference) {
+            Log::channel('paystack')->warning('Missing reference in callback payload', $data);
+            return;
+        }
+
+        // Update the order status
+        $order = DB::table('orders')
+            ->where('tx_ref', $reference)
+            ->update([
+                'trans_id'   => $transId,
+                'status'     => $status,
+                'updated_at' => now(),
+            ]);
+
+        // If successful, update vendor balance
+        if ($status === 'Processing') {
+            $order = DB::table('orders')
+                ->where('tx_ref', $reference)
+                ->first();
+
+            if ($order) {
+                $itemAmount = $order->final_amount;
+
+                DB::table('vendors')
+                    ->where('id', $order->vendor_id)
+                    ->increment('balance', $itemAmount);
+            }
+        }
     }
 
 
