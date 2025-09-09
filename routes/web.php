@@ -29,9 +29,9 @@ Route::get('/', function () {
 });
 
 
-Route::post('/paystack/webhook', [OrderController::class, 'webhookupdateOrder']);
+Route::post('/paystack/webhook', [OrderController::class, 'handleWebhook']);
 
-Route::post('/paystack/callback', [OrderController::class, 'paystackCallback']);
+// Route::post('/paystack/callback', [OrderController::class, 'paystackCallback']);
 
 // Admin Login Routes
 Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
