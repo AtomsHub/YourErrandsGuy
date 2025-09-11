@@ -153,7 +153,7 @@
                             <i class="fa-solid fa-truck"></i>
                             <a href="#" class="text-white caption-larger">Delivery Time</a>
                             <h5 class="label-medium">
-                                {{ $order->created_at ?? 'N/A' }}
+                                {{ $order->assigned_at ?? 'N/A' }}
                             </h5>
 
                         </div>

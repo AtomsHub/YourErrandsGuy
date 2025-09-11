@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Custom\ApiResponse;
 use App\Models\Dispatcher;
 use App\Models\Order;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use App\Custom\ApiResponse;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class DispatcherController extends Controller
 {
@@ -34,7 +36,7 @@ class DispatcherController extends Controller
         $user = Dispatcher::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return ApiResponse::failed('Invalid credentials.', null, 401);
+            return ApiResponse::failed('Invalid credentials.', null, 402);
         }
 
       
@@ -340,21 +342,6 @@ class DispatcherController extends Controller
         $dispatcher->walletBalance += $serviceCharge;
         $dispatcher->save();
 
-        // Transaction::create([
-        //     'user_id'       => $user->id,
-        //     'dispatcher_id' => $dispatcher->id,
-        //     'order_id'      => $order->id,
-        //     'status'        => 'credit',
-        //     'amount'        => $serviceCharge,
-        // ]);
-    
-        // return response()->json([
-        //     'message'            => 'Order marked as completed',
-        //     'completed_at'       => $order->completed_at,
-        //     'credited_amount'    => $serviceCharge,
-        //     'new_wallet_balance' => $dispatcher->walletBalance,
-        // ]);
-
         return response()->json([
             'message' => 'Order marked as completed',
             'completed_at' => $order->completed_at,
@@ -389,6 +376,92 @@ class DispatcherController extends Controller
 
         return ApiResponse::success(null, 'Password changed successfully.');
     }
+
+
+    public function sendMoney(Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:100'
+        ]);
+
+         $users = auth()->user();
+         $user = Dispatcher::where('id', $users->id)->first();
+
+        $amount = $request->amount;
+        $accountNumber = $user->account_number;
+        $bankCode = $user->bank_code;
+        $accountName = $user->bank_account_number;
+
+        // ✅ Check balance
+        if ($user->walletBalance < $amount) {
+            return response()->json(['error' => 'Insufficient balance'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            // ✅ Step 1: Verify account
+            $verificationResponse = Http::withToken(env('PAYSTACK_SECRET_KEY'))
+                ->get('https://api.paystack.co/bank/resolve', [
+                    'account_number' => $accountNumber,
+                    'bank_code' => $bankCode,
+                ]);
+
+            if (!$verificationResponse->successful() || !isset($verificationResponse['data'])) {
+                return response()->json(['error' => 'Bank account verification failed'], 400);
+            }
+
+            $verifiedAccountName = $verificationResponse['data']['account_name'];
+
+            // ✅ Step 2: Create transfer recipient
+            $recipientResponse = Http::withToken(env('PAYSTACK_SECRET_KEY'))
+                ->post('https://api.paystack.co/transferrecipient', [
+                    'type' => 'nuban',
+                    'name' => $accountName ?: $verifiedAccountName, 
+                    'account_number' => $accountNumber,
+                    'bank_code' => $bankCode,
+                    'currency' => 'NGN',
+                ]);
+
+            if (!$recipientResponse->successful() || !isset($recipientResponse['data'])) {
+                return response()->json(['error' => 'Failed to create transfer recipient'], 400);
+            }
+
+            $recipientCode = $recipientResponse['data']['recipient_code'];
+
+            // ✅ Step 3: Initiate the transfer
+            $transferResponse = Http::withToken(env('PAYSTACK_SECRET_KEY'))
+                ->post('https://api.paystack.co/transfer', [
+                    'source' => 'balance',
+                    'reason' => 'Wallet Withdrawal',
+                    'amount' => $amount * 100, // Convert NGN to Kobo
+                    'recipient' => $recipientCode,
+                ]);
+
+            if (!$transferResponse->successful() || !isset($transferResponse['data'])) {
+                DB::rollBack();
+                return response()->json(['error' => 'Transfer failed'], 400);
+            }
+
+            // ✅ Deduct balance locally only after successful transfer
+            $user->walletBalance -= $amount;
+            $user->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Transfer successful',
+                'data' => $transferResponse['data'],
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Something went wrong',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
 
 }

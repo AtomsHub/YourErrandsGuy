@@ -347,6 +347,8 @@ class OrderController extends Controller
         $order->status = 'Rider Dispatched';
         $order->save();
 
+        
+
         // Send email to the customer
         //if ($order->user && $order->user->email) {
             //Mail::to($order->user->email)->send(new DispatcherAssigned($order, $order->dispatcher_id));}

@@ -40,7 +40,7 @@
 
         <h2>Hello {{ $user_name ?? 'Customer' }},</h2>
 
-        <p>Your order (Order ID: {{ $order_id }}) is currently <strong>being processed by your provider</strong>.</p>
+        <p>Your order (Order ID: {{ $order_id }}) is currently <strong>being processed by your Vendor</strong>.</p>
 
         <h4>Vendor Details:</h4>
         <ul>
