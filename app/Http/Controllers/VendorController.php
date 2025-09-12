@@ -134,7 +134,7 @@ class VendorController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials',
-            ], 401);
+            ], 402);
         }
 
         // Generate Sanctum token
@@ -145,7 +145,7 @@ class VendorController extends Controller
             'message' => 'Login successful',
             'data' => [
                 'token' => $token,
-                'vendor' => [
+                'user' => [
                     'id' => $vendor->id,
                     'name' => $vendor->name,
                     'username' => $vendor->username,
@@ -155,6 +155,7 @@ class VendorController extends Controller
                     'description' => $vendor->description,
                     'image' => $vendor->image,
                     'tag' => $vendor->tag,
+                    'type'  =>$vendor->service_type,
                     'walletBalance' => $vendor->walletBalance,
                 ],
             ]
@@ -178,7 +179,7 @@ class VendorController extends Controller
             'message' => 'successful',
             'data' => [
                 'orders' => $orders,
-                 'vendor' => [
+                 'user' => [
                     'id' => $vendor->id,
                     'name' => $vendor->name,
                     'username' => $vendor->username,
@@ -188,6 +189,7 @@ class VendorController extends Controller
                     'description' => $vendor->description,
                     'image' => $vendor->image,
                     'tag' => $vendor->tag,
+                    'type'  =>$vendor->service_type,
                     'walletBalance' => $vendor->walletBalance,
                 ],
             ]
@@ -221,10 +223,10 @@ class VendorController extends Controller
             'user_name' => $Order->customer->full_name,
             'order_id' => $Order->id,
             'provider_name' => $Order->vendor->name,
-            'provider_phone_number' => $Order->vendor->phone_number,
+            'provider_phone_number' => $Order->vendor->address,
         ], function ($message) use ($Order) {
             $message->to($Order->customer->email);
-            $message->subject('Order Assigned To Dispatcher');
+            $message->subject('Order Processed');
         });
 
         return response()->json([
@@ -307,54 +309,42 @@ class VendorController extends Controller
 
 
 
+    public function storeItemapi($vendorId)
+    {
+        // Validate incoming request data
+        $validated = request()->validate([
+            'name' => 'required|max:255',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        $newitems = Items::where('id',$validated['name'])->first();
+        // Find the vendor
+        $vendor = Vendor::findOrFail($vendorId);
+
+        // Create and save the new item
+        $item = new VendorItem();
+        $item->vendor_id = $vendor->id;
+        $item->name = $newitems->name;
+        $item->price = $validated['price'];
+         $item->items_id = $validated['name'];
+     
+        $item->save();
+
+        // Redirect back with success message
+        // return redirect()->back()->with('success', 'Item added successfully!');
 
 
-    // public function showapi(Request $request)
-    // {
-    //     $authVendor = $request->user();
+         return response()->json([
+            'success' => true,
+            'message' => 'Item added successfully!',
+            'data'    => [
+                'id'    => $item->id,
+                'name'  => $item->name,
+                'price' => $item->price,
+            ]
+        ], 201);
+    }
 
-    //     // Ensure vendor is authenticated
-    //     if (!$authVendor) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Unauthorized. Vendor not authenticated.',
-    //         ], 401);
-    //     }
-
-    //     // Load vendor with vendorItems and their related item
-    //     $vendor = Vendor::with('vitems','vendorItems.item')->find($authVendor->id);
-
-    //     if (!$vendor) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Vendor not found.',
-    //         ], 404);
-    //     }
-
-    //     // Vendor's own items (with image coming from Item table)
-    //     $items = $vendor->vitems->map(function ($vendorItem) {
-    //         return [
-    //             'id' => $vendorItem->id,
-    //             'name' => $vendorItem->name,
-    //             'price' => $vendorItem->price,
-    //             'description' => $vendorItem->description,
-    //             'image' =>  $vendorItem->item->image ?? null,
-    //         ];
-    //     });
-
-    //     // All available new items (from Items table)
-    //     $newitems = Items::all()->unique('name')->sortBy('id');
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Vendor fetched successfully',
-    //         'data' => [
-    //             'vendor' => $vendor
-                
-               
-    //         ]
-    //     ], 200);
-    // }
 
 
 

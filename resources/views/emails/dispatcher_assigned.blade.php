@@ -48,7 +48,7 @@
 
         <h2>Hello {{ $user_name ?? 'Customer' }},</h2>
 
-       <p>Your order (Order ID: {{ $order_id }}) has been assigned to a dispatcher.</p>
+       <p>Your order  has been assigned to a dispatcher.</p>
 
        <h4>Dispatcher Details:</h4>
        <ul>
