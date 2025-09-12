@@ -155,6 +155,7 @@ class VendorController extends Controller
                     'description' => $vendor->description,
                     'image' => $vendor->image,
                     'tag' => $vendor->tag,
+                    'type'  =>$vendor->service_type,
                     'walletBalance' => $vendor->walletBalance,
                 ],
             ]
@@ -188,6 +189,7 @@ class VendorController extends Controller
                     'description' => $vendor->description,
                     'image' => $vendor->image,
                     'tag' => $vendor->tag,
+                    'type'  =>$vendor->service_type,
                     'walletBalance' => $vendor->walletBalance,
                 ],
             ]
@@ -336,9 +338,9 @@ class VendorController extends Controller
             'success' => true,
             'message' => 'Item added successfully!',
             'data'    => [
-                'id'    => $vendorItem->id,
-                'name'  => $newItem->name,
-                'price' => $vendorItem->price,
+                'id'    => $item->id,
+                'name'  => $item->name,
+                'price' => $item->price,
             ]
         ], 201);
     }
