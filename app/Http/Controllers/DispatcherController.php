@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\PushNotification;
 use Illuminate\Support\Str;
 
 class DispatcherController extends Controller
@@ -41,7 +42,7 @@ class DispatcherController extends Controller
 
       
 
-        if (!$user->status != "approved") {
+        if ($user->status !== "approved") {
             return ApiResponse::failed('Dispatcher is yet to be verified.', null, 403);
         }
 
@@ -99,89 +100,62 @@ class DispatcherController extends Controller
     }
 
     public function orders(Request $request)
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    // Fetch all orders for the authenticated user
-    $orders = Order::with(['vendor', 'dispatcher', 'cartItems','customer'])
-        ->where('dispatch_id', $user->id)
-        ->orderBy('created_at', 'desc')
-        ->get();
+        // Fetch all orders for the authenticated user
+        $orders = Order::with(['vendor', 'dispatcher', 'cartItems','customer'])
+            ->where('dispatch_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-    return ApiResponse::success([
-        'orders' => $orders->map(function ($order) {
-            return [
-                'id' => $order->id,
-                'service_type' => $order->service_type,
-                'item_amount' => $order->item_amount,
-                'delivery_fee' => $order->delivery_fee,
-                'delivery_landmark' => $order->delivery_landmark,
-                'total_amount' => $order->total_amount,
-                'transaction_id' => $order->trans_id,
-                'form_details' => json_decode($order->form_details, true),
-                'items' => json_decode($order->items, true),
-                'status' => $order->status,
-                'created_at' => $order->created_at->toDateTimeString(),
+        return ApiResponse::success([
+            'orders' => $orders->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'service_type' => $order->service_type,
+                    'item_amount' => $order->item_amount,
+                    'delivery_fee' => $order->delivery_fee,
+                    'delivery_landmark' => $order->delivery_landmark,
+                    'total_amount' => $order->total_amount,
+                    'transaction_id' => $order->trans_id,
+                    'form_details' => json_decode($order->form_details, true),
+                    'items' => json_decode($order->items, true),
+                    'status' => $order->status,
+                    'created_at' => $order->created_at->toDateTimeString(),
 
-                // Vendor details
-                'vendor' => $order->vendor ? [
-                    'id' => $order->vendor->id,
-                    'name' => $order->vendor->name,
-                    'address' => $order->vendor->address,
-                    'service_type' => $order->vendor->service_type,
-                ] : null,
+                    // Vendor details
+                    'vendor' => $order->vendor ? [
+                        'id' => $order->vendor->id,
+                        'name' => $order->vendor->name,
+                        'address' => $order->vendor->address,
+                        'service_type' => $order->vendor->service_type,
+                    ] : null,
 
-                // Dispatcher details
-                'dispatcher' => $order->dispatcher ? [
-                    'id' => $order->dispatcher->id,
-                    'full_name' => $order->dispatcher->full_name,
-                    'phone_number' => $order->dispatcher->phone_number,
-                ] : null,
+                    // Dispatcher details
+                    'dispatcher' => $order->dispatcher ? [
+                        'id' => $order->dispatcher->id,
+                        'full_name' => $order->dispatcher->full_name,
+                        'phone_number' => $order->dispatcher->phone_number,
+                    ] : null,
 
-                // Cart items details
-                'cart_items' => $order->cartItems->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'items_id' => $item->items_id,
-                        'description' => $item->description,
-                        'quantity' => $item->quantity,
-                        'rate' => $item->rate,
-                        'price_per_item' => $item->pricePerItem,
-                        'service_name' => $item->serviceName,
-                    ];
-                }),
-            ];
-        })
-    ], 'Orders fetched successfully.');
-}
+                    // Cart items details
+                    'cart_items' => $order->cartItems->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'items_id' => $item->items_id,
+                            'description' => $item->description,
+                            'quantity' => $item->quantity,
+                            'rate' => $item->rate,
+                            'price_per_item' => $item->pricePerItem,
+                            'service_name' => $item->serviceName,
+                        ];
+                    }),
+                ];
+            })
+        ], 'Orders fetched successfully.');
+    }
 
-
-
-    // public function orders(Request $request)
-    // {
-    //     $user = $request->user();
-    //     $vendor = Order::with(['customer','vendor','dispatcher','cartItems'])->where('id', $user->id)->first();
-
-
-    //       return ApiResponse::success([
-    //         'user' => [
-    //             'id' => $user->id,
-    //             'full_name' => $user->full_name,
-    //             'phone_number' => $user->phone_number,
-    //             'email' => $user->email,
-    //             'home_address' => $user->home_address,
-    //             'date_of_birth' => $user->date_of_birth,
-    //             'national_id_number' => $user->national_id_number,
-    //             'driver_license_number' => $user->driver_license_number,
-    //             'id_document_path' => $user->id_document_path,
-    //             'motorbike_license_plate_number' => $user->motorbike_license_plate_number,
-    //             'bank_account_name' => $user->bank_account_name,
-    //             'bank_account_number' => $user->bank_account_number,
-    //             'bank_name' => $user->bank_name,
-    //              'walletBalance' => $user->walletBalance,
-    //         ]
-    //     ], 'Login successfully.');
-    // }
 
     public function store(Request $request)
     {
@@ -274,14 +248,45 @@ class DispatcherController extends Controller
     }
 
 
+
     public function approve($id)
     {
         $dispatcher = Dispatcher::findOrFail($id);
         $dispatcher->status = 'approved';
         $dispatcher->save();
 
-        return response()->json(['message' => 'Dispatcher approved.']);
+        /**
+         * Email notification
+         */
+        if ($dispatcher->email) {
+            Mail::send('emails.dispatcher_approved', [
+                'dispatcher_name' => $dispatcher->full_name,
+            ], function ($message) use ($dispatcher) {
+                $message->to($dispatcher->email);
+                $message->subject('🎉 Dispatcher Approved');
+            });
+        }
+
+        /**
+         * Push notification
+         */
+        if ($dispatcher->fcm_token) {
+            $dispatcher->notify(new PushNotification(
+                "✅ Approval Successful!",
+                "Hi {$dispatcher->full_name}, your account has been approved. You can now start handling deliveries.  
+                — YourErrandsGuy! Errands done, Worry Gone 🚀",
+                [
+                    'dispatcher_id' => $dispatcher->id,
+                    'status'        => $dispatcher->status,
+                    'role'          => 'dispatcher',
+                    'timestamp'     => now()->toDateTimeString(),
+                ]
+            ));
+        }
+
+        return response()->json(['success' => true, 'message' => 'Dispatcher approved and notified.']);
     }
+
 
     public function disapprove($id)
     {
@@ -289,8 +294,38 @@ class DispatcherController extends Controller
         $dispatcher->status = 'disapproved';
         $dispatcher->save();
 
-        return response()->json(['message' => 'Dispatcher disapproved.']);
+        /**
+         * Email notification
+         */
+        // if ($dispatcher->email) {
+        //     Mail::send('emails.dispatcher_disapproved', [
+        //         'dispatcher_name' => $dispatcher->full_name,
+        //     ], function ($message) use ($dispatcher) {
+        //         $message->to($dispatcher->email);
+        //         $message->subject('⚠️ Dispatcher Disapproved');
+        //     });
+        // }
+
+        /**
+         * Push notification
+         */
+        if ($dispatcher->fcm_token) {
+            $dispatcher->notify(new PushNotification(
+                "⚠️ Approval Declined",
+                "Hi {$dispatcher->full_name}, unfortunately your account has been disapproved. Please contact support for more details.  
+                — YourErrandsGuy! Errands done, Worry Gone 🚀",
+                [
+                    'dispatcher_id' => $dispatcher->id,
+                    'status'        => $dispatcher->status,
+                    'role'          => 'dispatcher',
+                    'timestamp'     => now()->toDateTimeString(),
+                ]
+            ));
+        }
+
+        return response()->json(['success' => true, 'message' => 'Dispatcher disapproved and notified.']);
     }
+
 
     public function show()
     {
@@ -303,50 +338,7 @@ class DispatcherController extends Controller
 
 
     // OrderController.php
-    public function completeByTransactionId(Request $request)
-    {
-        
-        $request->validate([
-            'trans_id' => 'required|string|exists:orders,trans_id',
-        ]);
-
-        $user = auth()->user();
-        $order = Order::where('trans_id', $request->transaction_id)->first();
-
-        // Ensure the user is either the owner or the assigned dispatcher
-      
-        $isDispatcher = $order->dispatcher_id === $user->id;
-
-        if ( ! $isDispatcher) {
-            return response()->json(['message' => 'Unauthorized. You are not assigned to this order.'], 403);
-        }
-
-        if ($order->status === 'completed') {
-            return response()->json(['message' => 'Order already completed'], 400);
-        }
-
-        // Proceed with completion
-        $order->status = 'completed';
-        $order->completed_at = now();
-        $order->save();
-
-        // Credit dispatcher's wallet with service charge
-        $dispatcher = Dispatcher::where('id', $user->id)->first();
-
-        if (! $dispatcher) {
-            return response()->json(['message' => 'Dispatcher profile not found'], 404);
-        }
-
-        $serviceCharge = $order->delivery_fee ?? 0; // Make sure this field exists
-
-        $dispatcher->walletBalance += $serviceCharge;
-        $dispatcher->save();
-
-        return response()->json([
-            'message' => 'Order marked as completed',
-            'completed_at' => $order->completed_at,
-        ]);
-    }
+    
     public function changePassword(Request $request)
     {
         // Validate input fields
@@ -461,6 +453,107 @@ class DispatcherController extends Controller
             ], 500);
         }
     }
+
+    public function completeByTransactionId(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'trans_id' => 'required|string|exists:orders,trans_id'
+        ]);
+
+        if ($validator->fails()) {
+            return ApiResponse::validationFailed($validator->errors());
+        }
+
+        $user  = auth()->user();
+        $order = Order::where('trans_id', $request->trans_id)->first();
+
+        // Ensure the user is the assigned dispatcher
+
+        // dd($order->dispatch_id.'-'. $user->id);
+        $isDispatcher = $order->dispatch_id === $user->id;
+
+        if (! $isDispatcher) {
+            return ApiResponse::failed('Unauthorized. You are not assigned to this order.', null, 403);
+        }
+
+        // Check order status before completion
+        if ($order->status === 'Completed') {
+            return ApiResponse::failed('Order already completed.', null, 400);
+        }
+
+        if ($order->status !== 'Rider Dispatched') {
+            return ApiResponse::failed("Order cannot be completed. Current status: {$order->status}", null, 400);
+        }
+
+        // ✅ Proceed with completion
+        $order->status       = 'Completed';
+        $order->completed_at = now();
+        $order->save();
+
+        // Get dispatcher profile
+        $dispatcher = Dispatcher::where('id', $user->id)->first();
+
+        if (! $dispatcher) {
+            return ApiResponse::failed('Dispatcher profile not found.', null, 404);
+        }
+
+        $serviceCharge = $order->delivery_fee ?? 0;
+
+        $dispatcher->walletBalance += $serviceCharge;
+        $dispatcher->save();
+
+        // ✅ Push Notification for Dispatcher
+        if ($dispatcher->fcm_token) {
+            $title   = "✅ Order Completed!";
+            $message = "Great job {$dispatcher->name}, you’ve successfully completed order #{$order->id}.  
+            You earned ₦" . number_format($serviceCharge, 2) . " as your service charge. 💰  
+            — YourErrandsGuy! Errands done, Worry Gone 🚀";
+
+            $dispatcher->notify(new PushNotification(
+                $title,
+                $message,
+                [
+                    'order_id'   => $order->id,
+                    'status'     => $order->status,
+                    'role'       => 'dispatcher',
+                    'earnings'   => $serviceCharge,
+                    'timestamp'  => now()->toDateTimeString(),
+                    'brand'      => 'YourErrandsGuy',
+                ]
+            ));
+        } else {
+            \Log::warning("Dispatcher {$dispatcher->id} has no FCM token. Notification not sent.");
+        }
+
+        return ApiResponse::success('Order marked as completed.', [
+            'completed_at' => $order->completed_at,
+            'earnings'     => $serviceCharge,
+        ]);
+    }
+
+
+    public function saveFcmToken(Request $request)
+    {
+        $request->validate([
+            'fcm_token' => 'required|string',
+        ]);
+
+        $dispatcher = auth()->user();
+        if (!$dispatcher) {
+            return ApiResponse::failed('Dispatcher profile not found.', null, 404);
+        }
+
+        $dispatcher->fcm_token = $request->fcm_token;
+        $dispatcher->save();
+
+        return ApiResponse::success('Dispatcher FCM token saved successfully.', $dispatcher, 200);
+    }
+
+
+
+
+
+
 
 
 

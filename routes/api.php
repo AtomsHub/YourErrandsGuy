@@ -49,6 +49,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/pickup-locations', [DeliveryController::class, 'getPickupLocations']);
     Route::get('/dropoff-locations/{pickup}', [DeliveryController::class, 'getDropoffLocations']);
     Route::get('/delivery-fee', [DeliveryController::class, 'getDeliveryFee']);
+
+         Route::post('/save-fcm-token', [AuthController::class, 'saveFcmToken']);
+    
     
 });
 
@@ -61,7 +64,8 @@ Route::prefix('dispatch')->name('dispatch.')->group(function () {
         Route::get('/dashboard', [DispatcherController::class, 'index']);
         Route::get('/orders', [DispatcherController::class, 'orders']);
         Route::post('/order-complete', [DispatcherController::class, 'completeByTransactionId']);
-
+         Route::post('/save-fcm-token', [DispatcherController::class, 'saveFcmToken']);
+    
     });
 
 });
@@ -76,7 +80,6 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
     Route::middleware(['auth:sanctum', 'verified', 'is.vendor'])->group(function () {
         Route::get('dashboard', [VendorController::class, 'dashboard'])->name('dashboard');
         Route::get('orders', [VendorController::class, 'getAllOrders'])->name('orders');
-        // Route::post('showapi', [VendorController::class, 'completeByTransactionId'])->name('order.complete');
 
          Route::post('/{id}/process', [VendorController::class, 'process'])->name('process');
 
@@ -85,6 +88,8 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
         // Route::post('/vendoritem/store', [VendorController::class, 'store'])->name('store');
         Route::put('/vendoritem/{id}', [VendorController::class, 'updateItemapi'])->name('update');
         Route::delete('/{id}', [VendorController::class, 'destroyItemapi'])->name('destroy');
+
+         Route::post('/save-fcm-token', [VendorController::class, 'saveFcmToken']);
 
     });
 });

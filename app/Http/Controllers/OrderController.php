@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\PushNotification;
 
 
 class OrderController extends Controller
@@ -145,6 +146,33 @@ class OrderController extends Controller
             }
         }
 
+        // Send push notification when order is saved
+        $user = User::find($userId);
+
+        if ($user) {
+            if ($user->fcm_token) {
+                $title = "📝 Order Saved!";
+                $message = "Hi {$user->name}, your order has been created successfully. 🎉  
+                Sit back and relax, YourErrandsGuy is on it! 🛵  
+                — YourErrandsGuy! Errands done, Worry Gone 🚀";
+
+                $user->notify(new PushNotification(
+                    $title,
+                    $message,
+                    [
+                        'order_id'  => $orderId,
+                        'status'    => 'created',
+                        'timestamp' => now()->toDateTimeString(),
+                        'brand'     => 'YourErrandsGuy',
+                    ]
+                ));
+            } else {
+                \Log::warning("User {$user->id} has no FCM token. Notification not sent.");
+            }
+        }
+
+
+
         return response()->json(['message' => 'Orders saved successfully!']);
     }
 
@@ -233,7 +261,7 @@ class OrderController extends Controller
 
         switch ($event) {
             case 'charge.success':
-                $this->updateOrderStatus($data, 'Processing');
+                $this->updateOrderStatus($data, 'Payment successful');
                 break;
 
             case 'transfer.success':
@@ -251,6 +279,8 @@ class OrderController extends Controller
 
         return response()->json(['status' => 'success'], 200);
     }
+
+    
 
     protected function updateOrderStatus(array $data, string $status)
     {
@@ -280,7 +310,7 @@ class OrderController extends Controller
         }
 
         // 💰 If it's a successful charge, update vendor balance
-        if ($status === 'Processing') {
+        if ($status === 'Payment successful') {
             $order = DB::table('orders')
                 ->where('trans_id', $localTransId)
                 ->first();
@@ -294,6 +324,60 @@ class OrderController extends Controller
 
                 Log::info("Paystack webhook: Vendor {$order->vendor_id} balance incremented by {$itemAmount}");
             }
+
+
+            // Send push notification on successful payment
+            $user = User::find($order->user_id);
+
+            if ($user) {
+                if ($user->fcm_token) {
+                    $title = "🎉 Payment Successful!";
+                    $message = "Hi {$user->name}, your payment of ₦" . number_format($order->amount, 2) . " was successful. 🟢 
+                    Your order is on its way! 🛵  
+                    — YourErrandsGuy! Errands done, Worry Gone 🚀";
+
+                    $user->notify(new PushNotification(
+                        $title,
+                        $message,
+                        [
+                            'order_id'  => $order->id,
+                            'amount'    => $order->amount,
+                            'status'    => 'success',
+                            'timestamp' => now()->toDateTimeString(),
+                            'brand'     => 'YourErrandsGuy',
+                        ]
+                    ));
+                } else {
+                    \Log::warning("User {$user->id} has no FCM token. Notification not sent.");
+                }
+            }
+
+
+           if ($Order->vendor) {
+                if ($Order->vendor->fcm_token) {
+                    $title = "📦 New Order To Process!";
+                    $message = "Hello {$Order->vendor->name}, you have a new order #{$Order->id} to process for {$Order->customer->full_name}.  
+                    — YourErrandsGuy! Errands done, Worry Gone 🚀";
+
+                    $Order->vendor->notify(new PushNotification(
+                        $title,
+                        $message,
+                        [
+                            'order_id'  => $Order->id,
+                            'status'    => $Order->status,
+                            'role'      => 'vendor',
+                            'timestamp' => now()->toDateTimeString(),
+                            'brand'     => 'YourErrandsGuy',
+                        ]
+                    ));
+                } else {
+                    \Log::warning("Vendor {$Order->vendor->id} has no FCM token. Notification not sent.");
+                }
+            }
+
+
+
+
         }
 
         Log::info("Paystack webhook: Order {$localTransId} updated to {$status}");
@@ -330,119 +414,94 @@ class OrderController extends Controller
         return view('admin.orders.order', compact('order', 'approved'));
     }
 
+
     public function assignDispatcher(Request $request)
     {
         $request->validate([
             'dispatcher_id' => 'required|exists:dispatchers,id',
-            'order_id' => 'required|exists:orders,id',
+            'order_id'      => 'required|exists:orders,id',
         ]);
 
         $dispatcher = Dispatcher::findOrFail($request->dispatcher_id);
-        $order = Order::find($request->order_id);
-        $user = User::findOrFail($order->user_id);
-        $order->dispatcher_id = $request->dispatcher_id;
+        $order      = Order::findOrFail($request->order_id);
+        $user       = User::findOrFail($order->user_id);
+        $vendor     = Vendor::find($order->vendor_id); // assuming order has vendor_id
 
-        $order->assigned_at = Carbon::now();
-        
-        $order->status = 'Rider Dispatched';
+        // Update order
+        $order->dispatcher_id = $request->dispatcher_id;
+        $order->assigned_at   = now();
+        $order->status        = 'Rider Dispatched';
         $order->save();
 
-        
-
-        // Send email to the customer
-        //if ($order->user && $order->user->email) {
-            //Mail::to($order->user->email)->send(new DispatcherAssigned($order, $order->dispatcher_id));}
-
-            // Send the verification email
-            Mail::send('emails.dispatcher_assigned', ['user_name' => $user->fullname,
-            'order_id'=>$order->id,
-            'dispatcher_name'=> $dispatcher->full_name,
-            'dispatcher_phone_number'=>$dispatcher->phone_number],
+        /**
+         * Email notification to user
+         */
+        Mail::send(
+            'emails.dispatcher_assigned',
+            [
+                'user_name'              => $user->fullname,
+                'order_id'               => $order->id,
+                'dispatcher_name'        => $dispatcher->full_name,
+                'dispatcher_phone_number'=> $dispatcher->phone_number,
+            ],
             function ($message) use ($user) {
                 $message->to($user->email);
-                $message->subject('Order Assigned To Disaptcher');
-            });
-
-
-
-
-
-        // return ApiResponse::success(null, 'Dispatcher details sent to user.');
-        return redirect()->back()->with('success', 'Dispatcher assigned and eamil sent successfully!');
-    }
-
-
-
-
-    public function paystackCallback(Request $request)
-    {
-        $reference = $request->query('reference');
-        if (!$reference) {
-            return ApiResponse::notFound('Transaction reference missing.');
-        }
-
-        // Verify transaction with Paystack
-        $response = Http::withToken(env('PAYSTACK_SECRET_KEY'))
-            ->get("https://api.paystack.co/transaction/verify/{$reference}");
-
-        if (!$response->successful()) {
-            return ApiResponse::notFound('Unable to verify transaction.');
-        }
-
-        $data = $response->json('data');
-        if (!$data) {
-            return ApiResponse::notFound('No transaction data found.');
-        }
-
-        $status = $data['status']; // success | failed | abandoned
-        $mappedStatus = $status === 'success' ? 'Processing' : 'Failed';
-
-        // Reuse same method as webhook
-        $this->callbackupdateOrderStatus($data, $mappedStatus);
-
-        if ($mappedStatus === 'Processing') {
-            return ApiResponse::success(null, 'Order placed successfully!');
-        }
-
-        return ApiResponse::notFound('Transaction failed or order not found.');
-    }
-
-    protected function callbackupdateOrderStatus(array $data, string $status)
-    {
-        $reference = $data['reference'] ?? null;
-        $transId   = $data['id'] ?? null;
-
-        if (!$reference) {
-            Log::channel('paystack')->warning('Missing reference in callback payload', $data);
-            return;
-        }
-
-        // Update the order status
-        $order = DB::table('orders')
-            ->where('tx_ref', $reference)
-            ->update([
-                'trans_id'   => $transId,
-                'status'     => $status,
-                'updated_at' => now(),
-            ]);
-
-        // If successful, update vendor balance
-        if ($status === 'Processing') {
-            $order = DB::table('orders')
-                ->where('tx_ref', $reference)
-                ->first();
-
-            if ($order) {
-                $itemAmount = $order->final_amount;
-
-                DB::table('vendors')
-                    ->where('id', $order->vendor_id)
-                    ->increment('balance', $itemAmount);
+                $message->subject('Order Assigned To Dispatcher');
             }
+        );
+
+        /**
+         * Push Notifications
+         */
+
+        // User Notification
+        if ($user->fcm_token) {
+            $user->notify(new PushNotification(
+                "🚚 Dispatcher Assigned!",
+                "Hi {$user->fullname}, your order #{$order->id} has been assigned to {$dispatcher->full_name}. They’ll contact you soon.  
+                — YourErrandsGuy! Errands done, Worry Gone 🚀",
+                [
+                    'order_id'  => $order->id,
+                    'status'    => $order->status,
+                    'role'      => 'user',
+                    'timestamp' => now()->toDateTimeString(),
+                ]
+            ));
         }
+
+        // Dispatcher Notification
+        if ($dispatcher->fcm_token) {
+            $dispatcher->notify(new PushNotification(
+                "📦 New Order Assigned!",
+                "Hello {$dispatcher->full_name}, you’ve been assigned order #{$order->id}.  
+                Please contact the customer at {$user->phone_number}.  
+                — YourErrandsGuy! Errands done, Worry Gone 🚀",
+                [
+                    'order_id'  => $order->id,
+                    'status'    => $order->status,
+                    'role'      => 'dispatcher',
+                    'timestamp' => now()->toDateTimeString(),
+                ]
+            ));
+        }
+
+        // Vendor Notification
+        if ($vendor && $vendor->fcm_token) {
+            $vendor->notify(new PushNotification(
+                "✅ Order Dispatched!",
+                "Order #{$order->id} has been dispatched with {$dispatcher->full_name}.  
+                — YourErrandsGuy! Errands done, Worry Gone 🚀",
+                [
+                    'order_id'  => $order->id,
+                    'status'    => $order->status,
+                    'role'      => 'vendor',
+                    'timestamp' => now()->toDateTimeString(),
+                ]
+            ));
+        }
+
+        return redirect()->back()->with('success', 'Dispatcher assigned, email and notifications sent successfully!');
     }
-
-
 
 
 

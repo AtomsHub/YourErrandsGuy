@@ -6,7 +6,7 @@ use App\Models\Items;
 use App\Models\Order;
 use App\Models\Vendor;
 use App\Models\VendorItem;
-
+use App\Notifications\PushNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -229,6 +229,40 @@ class VendorController extends Controller
             $message->subject('Order Processed');
         });
 
+
+        // Customer Notification
+        if ($Order->customer && $Order->customer->fcm_token) {
+            $Order->customer->notify(new PushNotification(
+                "🔄 Order Processing!",
+                "Hi {$Order->customer->full_name}, your order #{$Order->id} is now being processed by {$Order->vendor->name}.  
+                — YourErrandsGuy! Errands done, Worry Gone 🚀",
+                [
+                    'order_id'  => $Order->id,
+                    'status'    => $Order->status,
+                    'role'      => 'customer',
+                    'timestamp' => now()->toDateTimeString(),
+                ]
+            ));
+        }
+
+
+
+        // Dispatcher Notification
+        if ($Order->dispatcher && $Order->dispatcher->fcm_token) {
+            $Order->dispatcher->notify(new PushNotification(
+                "🛵 Order Update!",
+                "Hi {$Order->dispatcher->full_name}, vendor {$Order->vendor->name} is processing order #{$Order->id}.  
+                Get ready — you’ll soon pick it up.  
+                — YourErrandsGuy! Errands done, Worry Gone 🚀",
+                [
+                    'order_id'  => $Order->id,
+                    'status'    => $Order->status,
+                    'role'      => 'dispatcher',
+                    'timestamp' => now()->toDateTimeString(),
+                ]
+            ));
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Thanks for processing your order.'
@@ -330,8 +364,6 @@ class VendorController extends Controller
      
         $item->save();
 
-        // Redirect back with success message
-        // return redirect()->back()->with('success', 'Item added successfully!');
 
 
          return response()->json([
@@ -420,6 +452,27 @@ class VendorController extends Controller
             'message' => 'Item deleted successfully',
         ], 200);
     }
+
+    public function saveFcmToken(Request $request)
+    {
+        $request->validate([
+            'fcm_token' => 'required|string',
+        ]);
+
+        $vendor = auth()->user();
+        if (!$vendor) {
+            return ApiResponse::failed('Vendor profile not found.', null, 404);
+        }
+
+        $vendor->fcm_token = $request->fcm_token;
+        $vendor->save();
+
+        return ApiResponse::success('Vendor FCM token saved successfully.', $vendor, 200);
+    }
+
+
+    
+
 
 
 

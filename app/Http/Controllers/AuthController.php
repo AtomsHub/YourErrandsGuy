@@ -297,4 +297,24 @@ class AuthController extends Controller
     }
 
 
+   public function saveFcmToken(Request $request)
+    {
+        $request->validate([
+            'fcm_token' => 'required|string',
+        ]);
+
+        $user = auth()->user();
+        if (!$user) {
+            return ApiResponse::failed('User profile not found.', null, 404);
+        }
+
+        $user->fcm_token = $request->fcm_token;
+        $user->save();
+
+        return ApiResponse::success('User FCM token saved successfully.', $user, 200);
+    }
+
+
+
+
 }
